@@ -28,6 +28,7 @@ setTimeout(function() {
 		block4,
 		block5,
 		block6,
+		//block65,
 		block7,
 		block8,
 		block9,
@@ -97,11 +98,16 @@ function block6() {
 	document.querySelector('.sc-dnqmqq').click();
 }
 
+//открыть выбор времени
+function block65() {
+	document.querySelector('.DayPicker-NavButton--next').click();
+}
+
 //выбрать время
 function block7() {
 	const elems = document.querySelectorAll('.DayPicker-Day');
 	for (let i = 0; i < elems.length; i++) {
-		if (elems[i].textContent === '11') {
+		if (elems[i].textContent === '2') {
 			elems[i].click();
 			break;
 		}
