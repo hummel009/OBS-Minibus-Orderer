@@ -10,18 +10,16 @@ import java.time.LocalTime
 import java.util.*
 import kotlin.concurrent.timerTask
 
-const val phone: String = "+375296186182"
-
 fun main() {
 	val timer = Timer()
 	val task = timerTask {
 		val currentTime = LocalTime.now()
-		if (currentTime.hour == 3 && currentTime.minute == 1 && currentTime.second == 0) {
+		if (currentTime.hour == orderingTime.first && currentTime.minute == orderingTime.second && currentTime.second == orderingTime.third) {
 			orderTaxi()
 			timer.cancel()
 		}
 	}
-	val delay = calculateDelayUntil(3, 1, 0)
+	val delay = calculateDelayUntil(orderingTime.first, orderingTime.second, orderingTime.third)
 	timer.schedule(task, delay)
 }
 
@@ -32,8 +30,8 @@ fun orderTaxi() {
 	println("From City ID: " + idsForBooking.first)
 	println("To City ID: " + idsForBooking.second)
 
-	val responseBetweenCities = requestBetweenCities(idsForBooking.first, idsForBooking.second, "2023-06-25")
-	val idsBetweenCities = getIDsBetweenCities(responseBetweenCities, "07:45")
+	val responseBetweenCities = requestBetweenCities(idsForBooking.first, idsForBooking.second, date)
+	val idsBetweenCities = getIDsBetweenCities(responseBetweenCities, time)
 
 	println("From Stop ID: ${idsBetweenCities.first}")
 	println("To Stop ID: ${idsBetweenCities.second}")
