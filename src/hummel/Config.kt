@@ -1,6 +1,5 @@
 package hummel
 
-
 val orderingTime: Triple<Int, Int, Int> = Triple(3, 1, 0)
 
 const val phone: String = "+375296186182"
