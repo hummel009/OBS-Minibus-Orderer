@@ -7,116 +7,125 @@ import org.apache.http.entity.ContentType
 import org.apache.http.entity.StringEntity
 import org.apache.http.impl.client.HttpClients
 import org.apache.http.util.EntityUtils
+import java.time.LocalTime
+import java.util.*
+import kotlin.concurrent.timerTask
 
-fun main() {/*
+fun main() {
 	val timer = Timer()
 	val task = timerTask {
 		val currentTime = LocalTime.now()
 		if (currentTime.hour == orderingTime.first && currentTime.minute == orderingTime.second && currentTime.second == orderingTime.third) {
-			orderTaxi()
+			orderShuttle()
 			timer.cancel()
 		}
 	}
-	val delay = calculateDelayUntil(orderingTime.first, orderingTime.second, orderingTime.third)
-	timer.schedule(task, delay)
-	*/
-	requestUnlockReservations()
-	requestCheckReservations()
+	val timeUntil = getTimeUntil(orderingTime.first, orderingTime.second, orderingTime.third)
+	timer.schedule(task, timeUntil)
 }
 
-fun requestUnlockReservations() {
-	val httpClient = HttpClients.createDefault()
-	val httpOptions = HttpOptions("https://api.obs.by/clients/withReservations/+375296186182")
+fun orderShuttle() {
+	while (true) {
+		unlockUserInfo()
 
-	httpOptions.addHeader("Access-Control-Request-Headers", "authorization")
-	httpOptions.addHeader("Access-Control-Request-Method", "GET")
+		val userInfo = getUserInfo()
+		val shouldExecute = getIsTicketNotOrdered(userInfo)
 
-	httpClient.execute(httpOptions)
+		if (shouldExecute) {
+			val bookingsInfo = getBookingsInfo()
+			val bookingIDs = getBookingIDs(bookingsInfo)
 
-	httpClient.close()
+			println("From City ID: " + bookingIDs.first)
+			println("To City ID: " + bookingIDs.second)
+
+			val transfersInfo = getTransfersInfo(bookingIDs.first, bookingIDs.second, date)
+			val transferIDs = getTransferIDs(transfersInfo, time)
+
+			println("From Stop ID: ${transferIDs.first}")
+			println("To Stop ID: ${transferIDs.second}")
+			println("Time ID: ${transferIDs.third}")
+
+			orderTicket(transferIDs.first, transferIDs.second, transferIDs.third)
+
+			println("Retry in 60 seconds!")
+			Thread.sleep(60000)
+		} else {
+			println("The shuttle is already ordered!")
+			break
+		}
+	}
 }
 
-fun requestCheckReservations() {
-	val httpClient = HttpClients.createDefault()
-	val httpGet = HttpGet("https://api.obs.by/clients/withReservations/+375296186182")
+fun unlockUserInfo() {
+	val client = HttpClients.createDefault()
+	val request = HttpOptions("https://api.obs.by/clients/withReservations/$phone")
 
-	httpGet.addHeader(
-		"Authorization",
-		"Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJwaG9uZSI6IiszNzUyOTYxODYxODIiLCJyb2xlIjoiY2xpZW50IiwiaWF0IjoxNjg3MzU0NTQwLCJleHAiOjE2ODc0NDA5NDB9.v3wQlCAPDnQ6XeVFSz0Ez8px4nOstUM3sR10cm_oivw"
-	)
+	request.addHeader("Access-Control-Request-Headers", "authorization")
+	request.addHeader("Access-Control-Request-Method", "GET")
 
-	val response = httpClient.execute(httpGet)
-	val entity = response.entity
-	val responseCheckReservations = EntityUtils.toString(entity)
-
-	println(responseCheckReservations)
-
-	httpClient.close()
-}
-
-fun orderTaxi() {
-	val responseForBooking = requestForBooking()
-	val idsForBooking = getIDsForBooking(responseForBooking)
-
-	println("From City ID: " + idsForBooking.first)
-	println("To City ID: " + idsForBooking.second)
-
-	val responseBetweenCities = requestBetweenCities(idsForBooking.first, idsForBooking.second, date)
-	val idsBetweenCities = getIDsBetweenCities(responseBetweenCities, time)
-
-	println("From Stop ID: ${idsBetweenCities.first}")
-	println("To Stop ID: ${idsBetweenCities.second}")
-	println("Time ID: ${idsBetweenCities.third}")
-
-	requestBook(idsBetweenCities.first, idsBetweenCities.second, idsBetweenCities.third)
-}
-
-fun requestForBooking(): String {
-	val httpClient = HttpClients.createDefault()
-	val httpGet = HttpGet("https://api.obs.by/cities/forBooking")
-
-	val response = httpClient.execute(httpGet)
-	val entity = response.entity
-	val responseForBooking = EntityUtils.toString(entity)
-
-	httpClient.close()
-
-	return responseForBooking
-}
-
-fun requestBetweenCities(fromCityID: String, toCityID: String, date: String): String {
-	val httpClient = HttpClients.createDefault()
-	val httpPost = HttpPost("https://api.obs.by/transfers/betweenCities")
-
-	val payload = payloadBetweenCities(fromCityID, toCityID, date)
-	httpPost.entity = StringEntity(payload, ContentType.APPLICATION_JSON)
-
-	val response = httpClient.execute(httpPost)
-	val entity = response.entity
-	val responseBetweenCities = EntityUtils.toString(entity)
-
-	httpClient.close()
-
-	return responseBetweenCities
-}
-
-fun requestBook(fromStopID: String, toStopID: String, timeID: String) {
-	val httpClient = HttpClients.createDefault()
-	val httpPost = HttpPost("https://api.obs.by/reservations/book")
-
-	httpPost.addHeader("Accept", "application/json, text/plain, */*")
-	httpPost.addHeader("Accept-Encoding", "gzip, deflate, br")
-	httpPost.addHeader("Accept-Language", "ru-RU,ru;q=0.9,be-BY;q=0.8,be;q=0.7,en-US;q=0.6,en;q=0.5")
-	httpPost.addHeader(
-		"Authorization",
-		"Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJwaG9uZSI6IiszNzUyOTYxODYxODIiLCJyb2xlIjoiY2xpZW50IiwiaWF0IjoxNjg3MzU0NTQwLCJleHAiOjE2ODc0NDA5NDB9.v3wQlCAPDnQ6XeVFSz0Ez8px4nOstUM3sR10cm_oivw"
-	)
-
-	val payload = payloadBook(fromStopID, toStopID, timeID)
-	httpPost.entity = StringEntity(payload, ContentType.APPLICATION_JSON)
-
-	val response = httpClient.execute(httpPost)
+	val response = client.execute(request)
 
 	response.close()
-	httpClient.close()
+	client.close()
+}
+
+fun getUserInfo(): String {
+	val client = HttpClients.createDefault()
+	val request = HttpGet("https://api.obs.by/clients/withReservations/$phone")
+
+	request.addHeader("Authorization", "Bearer $token")
+
+	val response = client.execute(request)
+	val entity = response.entity
+	val userInfo = EntityUtils.toString(entity)
+
+	response.close()
+	client.close()
+
+	return userInfo
+}
+
+fun getBookingsInfo(): String {
+	val client = HttpClients.createDefault()
+	val request = HttpGet("https://api.obs.by/cities/forBooking")
+
+	val response = client.execute(request)
+	val entity = response.entity
+	val bookingsInfo = EntityUtils.toString(entity)
+
+	response.close()
+	client.close()
+
+	return bookingsInfo
+}
+
+fun getTransfersInfo(fromCityID: String, toCityID: String, date: String): String {
+	val client = HttpClients.createDefault()
+	val request = HttpPost("https://api.obs.by/transfers/betweenCities")
+
+	val payload = payloadTransfersInfo(fromCityID, toCityID, date)
+	request.entity = StringEntity(payload, ContentType.APPLICATION_JSON)
+
+	val response = client.execute(request)
+	val entity = response.entity
+	val transfersInfo = EntityUtils.toString(entity)
+
+	response.close()
+	client.close()
+
+	return transfersInfo
+}
+
+fun orderTicket(fromStopID: String, toStopID: String, timeID: String) {
+	val client = HttpClients.createDefault()
+	val request = HttpPost("https://api.obs.by/reservations/book")
+	request.addHeader("Authorization", "Bearer $token")
+
+	val payload = payloadOrderTicket(fromStopID, toStopID, timeID)
+	request.entity = StringEntity(payload, ContentType.APPLICATION_JSON)
+
+	val response = client.execute(request)
+
+	response.close()
+	client.close()
 }

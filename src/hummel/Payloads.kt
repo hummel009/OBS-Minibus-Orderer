@@ -1,6 +1,6 @@
 package hummel
 
-fun payloadBetweenCities(fromCityID: String, toCityID: String, date: String): String {
+fun payloadTransfersInfo(fromCityID: String, toCityID: String, date: String): String {
 	return """
 		{
 			"from": "$fromCityID",
@@ -11,7 +11,7 @@ fun payloadBetweenCities(fromCityID: String, toCityID: String, date: String): St
 	""".trimIndent()
 }
 
-fun payloadBook(fromStopID: String, toStopID: String, timeID: String): String {
+fun payloadOrderTicket(fromStopID: String, toStopID: String, timeID: String): String {
 	return """
 		{
 			"client": "$phone",

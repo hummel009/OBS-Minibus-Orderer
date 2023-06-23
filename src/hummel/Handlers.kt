@@ -2,21 +2,32 @@ package hummel
 
 import com.google.gson.Gson
 
-fun getIDsBetweenCities(responseBetweenCities: String, time: String): Triple<String, String, String> {
-	val bookings = Gson().fromJson(responseBetweenCities, Array<Booking>::class.java).toList()
+fun getIsTicketNotOrdered(responseUserInfo: String): Boolean {
+	val userInfo = Gson().fromJson(responseUserInfo, SUserInfo::class.java)
+
+	for (reservation in userInfo.reservations) {
+		if (reservation.from.name == stopFrom && reservation.from.time == time && reservation.date == date) {
+			return false
+		}
+	}
+	return true
+}
+
+fun getTransferIDs(responseBetweenCities: String, time: String): Triple<String, String, String> {
+	val transferInfos = Gson().fromJson(responseBetweenCities, Array<STransferInfo>::class.java).toList()
 
 	var fromID = ""
 	var toID = ""
 	var timeID = ""
 
-	loop@ for (booking in bookings) {
-		for ((from, to) in booking.stopsForBooking) {
+	loop@ for (transferInfo in transferInfos) {
+		for ((from, to) in transferInfo.stopsForBooking) {
 			if (from.name == stopFrom && from.time == time) {
 				for ((name, _, id, _, _) in to) {
 					if (name == stopTo) {
 						fromID = from.id
 						toID = id
-						timeID = booking.id
+						timeID = transferInfo.id
 						break@loop
 					}
 				}
@@ -27,11 +38,11 @@ fun getIDsBetweenCities(responseBetweenCities: String, time: String): Triple<Str
 	return Triple(fromID, toID, timeID)
 }
 
-fun getIDsForBooking(responseBooking: String): Pair<String, String> {
+fun getBookingIDs(responseBooking: String): Pair<String, String> {
 	var fromID = ""
 	var toID = ""
 
-	val cities = Gson().fromJson(responseBooking, Array<City>::class.java).toList()
+	val cities = Gson().fromJson(responseBooking, Array<SBookingInfo>::class.java).toList()
 	for ((from, _) in cities) {
 		if (from.name == cityFrom) {
 			fromID = from.id
