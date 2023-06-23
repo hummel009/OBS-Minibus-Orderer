@@ -1,16 +1,14 @@
 package hummel
 
 import org.apache.http.client.methods.HttpGet
+import org.apache.http.client.methods.HttpOptions
 import org.apache.http.client.methods.HttpPost
 import org.apache.http.entity.ContentType
 import org.apache.http.entity.StringEntity
 import org.apache.http.impl.client.HttpClients
 import org.apache.http.util.EntityUtils
-import java.time.LocalTime
-import java.util.*
-import kotlin.concurrent.timerTask
 
-fun main() {
+fun main() {/*
 	val timer = Timer()
 	val task = timerTask {
 		val currentTime = LocalTime.now()
@@ -21,6 +19,39 @@ fun main() {
 	}
 	val delay = calculateDelayUntil(orderingTime.first, orderingTime.second, orderingTime.third)
 	timer.schedule(task, delay)
+	*/
+	requestUnlockReservations()
+	requestCheckReservations()
+}
+
+fun requestUnlockReservations() {
+	val httpClient = HttpClients.createDefault()
+	val httpOptions = HttpOptions("https://api.obs.by/clients/withReservations/+375296186182")
+
+	httpOptions.addHeader("Access-Control-Request-Headers", "authorization")
+	httpOptions.addHeader("Access-Control-Request-Method", "GET")
+
+	httpClient.execute(httpOptions)
+
+	httpClient.close()
+}
+
+fun requestCheckReservations() {
+	val httpClient = HttpClients.createDefault()
+	val httpGet = HttpGet("https://api.obs.by/clients/withReservations/+375296186182")
+
+	httpGet.addHeader(
+		"Authorization",
+		"Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJwaG9uZSI6IiszNzUyOTYxODYxODIiLCJyb2xlIjoiY2xpZW50IiwiaWF0IjoxNjg3MzU0NTQwLCJleHAiOjE2ODc0NDA5NDB9.v3wQlCAPDnQ6XeVFSz0Ez8px4nOstUM3sR10cm_oivw"
+	)
+
+	val response = httpClient.execute(httpGet)
+	val entity = response.entity
+	val responseCheckReservations = EntityUtils.toString(entity)
+
+	println(responseCheckReservations)
+
+	httpClient.close()
 }
 
 fun orderTaxi() {

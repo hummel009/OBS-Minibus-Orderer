@@ -1,5 +1,5 @@
 <component name="ProjectRunConfigurationManager">
-  <configuration default="false" name="runBot" type="Application" factoryName="Application">
+  <configuration default="false" name="launchBot" type="Application" factoryName="Application">
     <option name="MAIN_CLASS_NAME" value="hummel.MainKt" />
     <module name="ShuttleBot" />
     <method v="2">
