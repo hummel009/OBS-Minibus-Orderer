@@ -35,7 +35,6 @@ data class Booking(
 		val from: Stop, val to: List<Stop>
 	)
 
-
 	data class Route(
 		val id: String, val name: String, val number: String, val limits: List<Limit>
 	)
