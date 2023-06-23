@@ -12,16 +12,24 @@ import java.util.*
 import kotlin.concurrent.timerTask
 
 fun main() {
-	val timer = Timer()
-	val task = timerTask {
-		val currentTime = LocalTime.now()
-		if (currentTime.hour == orderingTime.first && currentTime.minute == orderingTime.second && currentTime.second == orderingTime.third) {
-			orderShuttle()
-			timer.cancel()
+	println("Choose mode: timer or infinite")
+	val scan = Scanner(System.`in`)
+	val answer = scan.nextLine()
+
+	if (answer == "timer") {
+		val timer = Timer()
+		val task = timerTask {
+			val currentTime = LocalTime.now()
+			if (currentTime.hour == orderingTime.first && currentTime.minute == orderingTime.second && currentTime.second == orderingTime.third) {
+				orderShuttle()
+				timer.cancel()
+			}
 		}
+		val timeUntil = getTimeUntil(orderingTime.first, orderingTime.second, orderingTime.third)
+		timer.schedule(task, timeUntil)
+	} else {
+		orderShuttle()
 	}
-	val timeUntil = getTimeUntil(orderingTime.first, orderingTime.second, orderingTime.third)
-	timer.schedule(task, timeUntil)
 }
 
 fun orderShuttle() {
