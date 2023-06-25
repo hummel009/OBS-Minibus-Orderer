@@ -14,13 +14,13 @@ fun getIsTicketNotOrdered(responseUserInfo: String): Boolean {
 }
 
 fun getTransferIDs(responseBetweenCities: String, time: String): Triple<String, String, String> {
-	val transferInfos = Gson().fromJson(responseBetweenCities, Array<STransferInfo>::class.java).toList()
+	val transfersInfo = Gson().fromJson(responseBetweenCities, Array<STransferInfo>::class.java).toList()
 
 	var fromID = ""
 	var toID = ""
 	var timeID = ""
 
-	loop@ for (transferInfo in transferInfos) {
+	loop@ for (transferInfo in transfersInfo) {
 		for ((from, to) in transferInfo.stopsForBooking) {
 			if (from.name == stopFrom && from.time == time) {
 				for ((name, _, id, _, _) in to) {
@@ -42,8 +42,8 @@ fun getBookingIDs(responseBooking: String): Pair<String, String> {
 	var fromID = ""
 	var toID = ""
 
-	val cities = Gson().fromJson(responseBooking, Array<SBookingInfo>::class.java).toList()
-	for ((from, _) in cities) {
+	val bookingsInfo = Gson().fromJson(responseBooking, Array<SBookingInfo>::class.java).toList()
+	for ((from, _) in bookingsInfo) {
 		if (from.name == cityFrom) {
 			fromID = from.id
 		} else if (from.name == cityTo) {
