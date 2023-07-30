@@ -1,0 +1,29 @@
+plugins {
+	id 'org.jetbrains.kotlin.jvm' version '1.8.22'
+	id 'application'
+}
+
+group = 'org.example'
+version = '1.0-SNAPSHOT'
+
+repositories {
+	mavenCentral()
+}
+
+dependencies {
+	testImplementation 'org.jetbrains.kotlin:kotlin-test'
+	implementation 'com.google.code.gson:gson:2.10.1'
+	implementation 'org.apache.httpcomponents:httpclient:4.5.14'
+}
+
+test {
+	useJUnitPlatform()
+}
+
+kotlin {
+	jvmToolchain(8)
+}
+
+application {
+	mainClassName = 'hummel.MainKt'
+}
