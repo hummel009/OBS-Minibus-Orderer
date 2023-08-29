@@ -1,13 +1,25 @@
 package hummel
 
-val orderingTime: Triple<Int, Int, Int> = Triple(3, 1, 0)
+data class Config(
+	val orderingTime: Triple<Int, Int, Int>,
+	val phone: String,
+	val date: String,
+	val time: String,
+	val stopFrom: String,
+	val stopTo: String,
+	val cityFrom: String,
+	val cityTo: String,
+	val token: String
+)
 
-const val phone: String = "+375296186182"
-const val date: String = "2023-09-04"
-const val time: String = "07:45"
-const val stopFrom: String = "РДК"
-const val stopTo: String = "ст.м.Восток"
-const val cityFrom: String = "Логойск"
-const val cityTo: String = "Минск"
-const val token: String =
+val defaultConfig: Config = Config(
+	Triple(3, 1, 0),
+	"+375296186182",
+	"2023-09-04",
+	"07:45",
+	"РДК",
+	"ст.м.Восток",
+	"Логойск",
+	"Минск",
 	"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJwaG9uZSI6IiszNzUyOTYxODYxODIiLCJyb2xlIjoiY2xpZW50IiwiaWF0IjoxNjg3MzU0NTQwLCJleHAiOjE2ODc0NDA5NDB9.v3wQlCAPDnQ6XeVFSz0Ez8px4nOstUM3sR10cm_oivw"
+)

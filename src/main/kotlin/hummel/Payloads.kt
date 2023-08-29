@@ -1,20 +1,20 @@
 package hummel
 
-fun payloadTransfersInfo(fromCityID: String, toCityID: String, date: String): String {
+fun payloadTransfersInfo(fromCityID: String, toCityID: String, config: Config): String {
 	return """
 		{
 			"from": "$fromCityID",
 			"to": "$toCityID",
-			"date": "$date",
-			"client": "$phone"
+			"date": "${config.date}",
+			"client": "${config.phone}"
 		}
 	""".trimIndent()
 }
 
-fun payloadOrderTicket(fromStopID: String, toStopID: String, timeID: String): String {
+fun payloadOrderTicket(fromStopID: String, toStopID: String, timeID: String, config: Config): String {
 	return """
 		{
-			"client": "$phone",
+			"client": "${config.phone}",
 			"transfer": "$timeID",
 			"from": "$fromStopID",
 			"to": "$toStopID",
@@ -22,7 +22,7 @@ fun payloadOrderTicket(fromStopID: String, toStopID: String, timeID: String): St
 			"info": "",
 			"createdBy": {
 				"role": "web-client",
-				"phone": "$phone"
+				"phone": "${config.phone}"
 			}
 		}
 	""".trimIndent()
