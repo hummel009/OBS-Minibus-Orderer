@@ -10,14 +10,17 @@ repositories {
 	mavenCentral()
 }
 
-dependencies {
-	testImplementation 'org.jetbrains.kotlin:kotlin-test'
-	implementation 'com.google.code.gson:gson:2.10.1'
-	implementation 'org.apache.httpcomponents:httpclient:4.5.14'
+configurations {
+	embed
+	compile.extendsFrom(embed)
 }
 
-test {
-	useJUnitPlatform()
+dependencies {
+	embed 'org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.8.22'
+	embed 'com.google.code.gson:gson:2.10.1'
+	embed 'org.apache.httpcomponents:httpclient:4.5.14'
+	implementation 'com.google.code.gson:gson:2.10.1'
+	implementation 'org.apache.httpcomponents:httpclient:4.5.14'
 }
 
 kotlin {
@@ -26,4 +29,14 @@ kotlin {
 
 application {
 	mainClassName = 'hummel.MainKt'
+}
+
+jar {
+	manifest {
+		attributes 'Main-Class': 'hummel.MainKt'
+	}
+	from(configurations.embed.collect {
+		if (it.isDirectory()) it else zipTree(it)
+	})
+	duplicatesStrategy = DuplicatesStrategy.EXCLUDE
 }
