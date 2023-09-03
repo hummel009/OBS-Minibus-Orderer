@@ -1,7 +1,6 @@
 package hummel
 
 data class Data(
-	val orderingTime: Triple<Int, Int, Int>,
 	val phone: String,
 	val date: String,
 	val time: String,

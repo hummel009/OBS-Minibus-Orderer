@@ -116,7 +116,6 @@ class GUI : JFrame() {
 		val saveButton = JButton("Запуск")
 		saveButton.addActionListener {
 			data = Data(
-				Triple(3, 1, 0),
 				phoneField.text,
 				dateField.text,
 				timeField.text,
@@ -139,7 +138,6 @@ class GUI : JFrame() {
 
 	private fun process(data: Data) {
 		println("Debug:")
-		println("Ordering Time: ${data.orderingTime}")
 		println("Phone: ${data.phone}")
 		println("Date: ${data.date}")
 		println("Time: ${data.time}")
@@ -152,9 +150,9 @@ class GUI : JFrame() {
 
 		if (data.timer) {
 			val currentTime = LocalTime.now()
-			val hour = data.orderingTime.first
-			val minute = data.orderingTime.second
-			val second = data.orderingTime.third
+			val hour = 3
+			val minute = 1
+			val second = 0
 
 			val timer = Timer()
 			val task = timerTask {
@@ -164,6 +162,10 @@ class GUI : JFrame() {
 				}
 			}
 			val timeUntil = getTimeUntil(minute, minute, second)
+			val hoursRemaining = timeUntil / 3600000
+			val minutesRemaining = (timeUntil % 3600000) / 60000
+			val secondsRemaining = ((timeUntil % 3600000) % 60000) / 1000
+			println("Time until timer starts: $hoursRemaining hours, $minutesRemaining minutes, $secondsRemaining seconds")
 			timer.schedule(task, timeUntil)
 		} else {
 			orderShuttle(data)
