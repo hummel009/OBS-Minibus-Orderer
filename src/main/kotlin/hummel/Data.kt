@@ -1,6 +1,6 @@
 package hummel
 
-data class Config(
+data class Data(
 	val orderingTime: Triple<Int, Int, Int>,
 	val phone: String,
 	val date: String,
@@ -9,5 +9,6 @@ data class Config(
 	val stopTo: String,
 	val cityFrom: String,
 	val cityTo: String,
-	val token: String
+	val token: String,
+	val timer: Boolean
 )

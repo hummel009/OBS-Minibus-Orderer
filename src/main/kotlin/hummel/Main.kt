@@ -1,6 +1,5 @@
 package hummel
 
-import com.google.gson.Gson
 import org.apache.http.client.methods.HttpGet
 import org.apache.http.client.methods.HttpOptions
 import org.apache.http.client.methods.HttpPost
@@ -11,11 +10,9 @@ import org.apache.http.util.EntityUtils
 import java.awt.BorderLayout
 import java.awt.EventQueue
 import java.awt.GridLayout
-import java.io.BufferedReader
-import java.io.File
-import java.io.InputStreamReader
-import java.nio.charset.StandardCharsets
+import java.time.LocalDate
 import java.time.LocalTime
+import java.time.format.DateTimeFormatter
 import java.util.Timer
 import javax.swing.*
 import javax.swing.border.EmptyBorder
@@ -39,18 +36,18 @@ fun main() {
 }
 
 class GUI : JFrame() {
-	private var timer = true
 
 	init {
 		title = "Hummel009's Shuttle Bot"
 		defaultCloseOperation = EXIT_ON_CLOSE
-		setBounds(100, 100, 500, 150)
+		setBounds(0, 0, 600, 500)
 
 		val contentPanel = JPanel()
 		contentPanel.border = EmptyBorder(5, 5, 5, 5)
 		contentPanel.layout = BorderLayout(0, 0)
-		contentPanel.layout = GridLayout(0, 1, 0, 0)
 		contentPane = contentPanel
+
+		var timer = true
 
 		val radioPanel = JPanel()
 		val radioTimer = JRadioButton("Таймер (заказ ночью)")
@@ -67,81 +64,134 @@ class GUI : JFrame() {
 		radioPanel.add(radioTimer)
 		radioPanel.add(radioMonitoring)
 
-		val processPanel = JPanel()
-		val processButton = JButton("Запуск")
-		processButton.addActionListener { process() }
-		processPanel.add(processButton)
+		val inputPanel = JPanel()
+		inputPanel.layout = GridLayout(0, 2, 5, 5)
 
-		contentPanel.add(radioPanel)
-		contentPanel.add(processPanel)
+		inputPanel.add(JLabel("Номер телефона:"))
+		val phoneField = JTextField(20)
+		phoneField.text = "+375296186182"
+		inputPanel.add(phoneField)
+
+		inputPanel.add(JLabel("Дата отправки:"))
+		val dateField = JTextField(20)
+		val currentDate = LocalDate.now()
+		val futureDate = currentDate.plusDays(8)
+		val formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd")
+		val formattedDate = futureDate.format(formatter)
+		dateField.text = formattedDate
+		inputPanel.add(dateField)
+
+		inputPanel.add(JLabel("Время отправки:"))
+		val timeField = JTextField(20)
+		timeField.text = "07:45"
+		inputPanel.add(timeField)
+
+		inputPanel.add(JLabel("Остановка отправки:"))
+		val stopFromField = JTextField(20)
+		stopFromField.text = "РДК"
+		inputPanel.add(stopFromField)
+
+		inputPanel.add(JLabel("Остановка прибытия:"))
+		val stopToField = JTextField(20)
+		stopToField.text = "ст.м.Восток"
+		inputPanel.add(stopToField)
+
+		inputPanel.add(JLabel("Город отправки:"))
+		val cityFromField = JTextField(20)
+		cityFromField.text = "Логойск"
+		inputPanel.add(cityFromField)
+
+		inputPanel.add(JLabel("Город прибытия:"))
+		val cityToField = JTextField(20)
+		cityToField.text = "Минск"
+		inputPanel.add(cityToField)
+
+		inputPanel.add(JLabel("Токен:"))
+		val tokenField = JTextField(20)
+		tokenField.text =
+			"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJwaG9uZSI6IiszNzUyOTYxODYxODIiLCJyb2xlIjoiY2xpZW50IiwiaWF0IjoxNjg3MzU0NTQwLCJleHAiOjE2ODc0NDA5NDB9.v3wQlCAPDnQ6XeVFSz0Ez8px4nOstUM3sR10cm_oivw"
+		inputPanel.add(tokenField)
+
+		var data: Data
+		val saveButton = JButton("Запуск")
+		saveButton.addActionListener {
+			data = Data(
+				Triple(3, 1, 0),
+				phoneField.text,
+				dateField.text,
+				timeField.text,
+				stopFromField.text,
+				stopToField.text,
+				cityFromField.text,
+				cityToField.text,
+				tokenField.text,
+				timer
+			)
+			process(data)
+		}
+
+		contentPanel.add(radioPanel, BorderLayout.NORTH)
+		contentPanel.add(inputPanel, BorderLayout.CENTER)
+		contentPanel.add(saveButton, BorderLayout.SOUTH)
 
 		setLocationRelativeTo(null)
 	}
 
-	private fun process() {
-		val gson = Gson()
-		val config = try {
-			val file = File("config.json")
-			val configJson = BufferedReader(InputStreamReader(file.inputStream(), StandardCharsets.UTF_8))
-			gson.fromJson(configJson, Config::class.java)
-		} catch (e: Exception) {
-			JOptionPane.showMessageDialog(this, "Настройки не заданы!", "Error", JOptionPane.ERROR_MESSAGE)
-			return
-		}
-
+	private fun process(data: Data) {
 		println("Debug:")
-		println("Ordering Time: ${config.orderingTime}")
-		println("Phone: ${config.phone}")
-		println("Date: ${config.date}")
-		println("Time: ${config.time}")
-		println("Stop From: ${config.stopFrom}")
-		println("Stop To: ${config.stopTo}")
-		println("City From: ${config.cityFrom}")
-		println("City To: ${config.cityTo}")
-		println("Token: ${config.token}")
+		println("Ordering Time: ${data.orderingTime}")
+		println("Phone: ${data.phone}")
+		println("Date: ${data.date}")
+		println("Time: ${data.time}")
+		println("Stop From: ${data.stopFrom}")
+		println("Stop To: ${data.stopTo}")
+		println("City From: ${data.cityFrom}")
+		println("City To: ${data.cityTo}")
+		println("Token: ${data.token}")
+		println("Timer: ${data.timer}")
 
-		if (timer) {
+		if (data.timer) {
 			val currentTime = LocalTime.now()
-			val hour = config.orderingTime.first
-			val minute = config.orderingTime.second
-			val second = config.orderingTime.third
+			val hour = data.orderingTime.first
+			val minute = data.orderingTime.second
+			val second = data.orderingTime.third
 
 			val timer = Timer()
 			val task = timerTask {
 				if (currentTime.hour == hour && currentTime.minute == minute && currentTime.second == second) {
-					orderShuttle(config)
+					orderShuttle(data)
 					timer.cancel()
 				}
 			}
 			val timeUntil = getTimeUntil(minute, minute, second)
 			timer.schedule(task, timeUntil)
 		} else {
-			orderShuttle(config)
+			orderShuttle(data)
 		}
 	}
 
-	private fun orderShuttle(config: Config) {
+	private fun orderShuttle(data: Data) {
 		while (true) {
-			unlockUserInfo(config)
+			unlockUserInfo(data)
 
-			val userInfo = getUserInfo(config)
-			val shouldExecute = getIsTicketNotOrdered(userInfo, config)
+			val userInfo = getUserInfo(data)
+			val shouldExecute = getIsTicketNotOrdered(userInfo, data)
 
 			if (shouldExecute) {
 				val bookingsInfo = getBookingsInfo()
-				val bookingIDs = getBookingIDs(bookingsInfo, config)
+				val bookingIDs = getBookingIDs(bookingsInfo, data)
 
 				println("From City ID: " + bookingIDs.first)
 				println("To City ID: " + bookingIDs.second)
 
-				val transfersInfo = getTransfersInfo(bookingIDs.first, bookingIDs.second, config)
-				val transferIDs = getTransferIDs(transfersInfo, config)
+				val transfersInfo = getTransfersInfo(bookingIDs.first, bookingIDs.second, data)
+				val transferIDs = getTransferIDs(transfersInfo, data)
 
 				println("From Stop ID: ${transferIDs.first}")
 				println("To Stop ID: ${transferIDs.second}")
 				println("Time ID: ${transferIDs.third}")
 
-				orderTicket(transferIDs.first, transferIDs.second, transferIDs.third, config)
+				orderTicket(transferIDs.first, transferIDs.second, transferIDs.third, data)
 
 				println("Retry in 60 seconds!")
 				Thread.sleep(60000)
@@ -152,9 +202,9 @@ class GUI : JFrame() {
 		}
 	}
 
-	private fun unlockUserInfo(config: Config) {
+	private fun unlockUserInfo(data: Data) {
 		val client = HttpClients.createDefault()
-		val request = HttpOptions("https://api.obs.by/clients/withReservations/${config.phone}")
+		val request = HttpOptions("https://api.obs.by/clients/withReservations/${data.phone}")
 
 		request.addHeader("Access-Control-Request-Headers", "authorization")
 		request.addHeader("Access-Control-Request-Method", "GET")
@@ -165,11 +215,11 @@ class GUI : JFrame() {
 		client.close()
 	}
 
-	private fun getUserInfo(config: Config): String {
+	private fun getUserInfo(data: Data): String {
 		val client = HttpClients.createDefault()
-		val request = HttpGet("https://api.obs.by/clients/withReservations/${config.phone}")
+		val request = HttpGet("https://api.obs.by/clients/withReservations/${data.phone}")
 
-		request.addHeader("Authorization", "Bearer ${config.token}")
+		request.addHeader("Authorization", "Bearer ${data.token}")
 
 		val response = client.execute(request)
 		val entity = response.entity
@@ -195,11 +245,11 @@ class GUI : JFrame() {
 		return bookingsInfo
 	}
 
-	private fun getTransfersInfo(fromCityID: String, toCityID: String, config: Config): String {
+	private fun getTransfersInfo(fromCityID: String, toCityID: String, data: Data): String {
 		val client = HttpClients.createDefault()
 		val request = HttpPost("https://api.obs.by/transfers/betweenCities")
 
-		val payload = payloadTransfersInfo(fromCityID, toCityID, config)
+		val payload = payloadTransfersInfo(fromCityID, toCityID, data)
 		request.entity = StringEntity(payload, ContentType.APPLICATION_JSON)
 
 		val response = client.execute(request)
@@ -212,12 +262,12 @@ class GUI : JFrame() {
 		return transfersInfo
 	}
 
-	private fun orderTicket(fromStopID: String, toStopID: String, timeID: String, config: Config) {
+	private fun orderTicket(fromStopID: String, toStopID: String, timeID: String, data: Data) {
 		val client = HttpClients.createDefault()
 		val request = HttpPost("https://api.obs.by/reservations/book")
-		request.addHeader("Authorization", "Bearer ${config.token}")
+		request.addHeader("Authorization", "Bearer ${data.token}")
 
-		val payload = payloadOrderTicket(fromStopID, toStopID, timeID, config)
+		val payload = payloadOrderTicket(fromStopID, toStopID, timeID, data)
 		request.entity = StringEntity(payload, ContentType.APPLICATION_JSON)
 
 		val response = client.execute(request)
