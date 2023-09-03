@@ -161,7 +161,7 @@ class GUI : JFrame() {
 					timer.cancel()
 				}
 			}
-			val timeUntil = getTimeUntil(minute, minute, second)
+			val timeUntil = getTimeUntil(hour, minute, second)
 			val hoursRemaining = timeUntil / 3600000
 			val minutesRemaining = (timeUntil % 3600000) / 60000
 			val secondsRemaining = ((timeUntil % 3600000) % 60000) / 1000
