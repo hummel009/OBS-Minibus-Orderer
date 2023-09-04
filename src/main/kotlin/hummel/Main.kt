@@ -11,12 +11,11 @@ import java.awt.BorderLayout
 import java.awt.EventQueue
 import java.awt.GridLayout
 import java.time.LocalDate
-import java.time.LocalTime
 import java.time.format.DateTimeFormatter
+import java.util.*
 import java.util.Timer
 import javax.swing.*
 import javax.swing.border.EmptyBorder
-import kotlin.concurrent.timerTask
 
 fun main() {
 	EventQueue.invokeLater {
@@ -147,29 +146,47 @@ class GUI : JFrame() {
 		println("City To: ${data.cityTo}")
 		println("Token: ${data.token}")
 		println("Timer: ${data.timer}")
-
 		if (data.timer) {
-			val currentTime = LocalTime.now()
-			val hour = 3
-			val minute = 1
-			val second = 0
-
 			val timer = Timer()
-			val task = timerTask {
-				if (currentTime.hour == hour && currentTime.minute == minute && currentTime.second == second) {
-					orderShuttle(data)
-					timer.cancel()
+			val currentTime = System.currentTimeMillis()
+			val targetTime = calculateTargetTime(1, 40, 0)
+
+			val timeUntil = targetTime - currentTime
+			if (timeUntil > 0) {
+				val hoursRemaining = timeUntil / 3600000
+				val minutesRemaining = (timeUntil % 3600000) / 60000
+				val secondsRemaining = ((timeUntil % 3600000) % 60000) / 1000
+				println("Time until timer starts: $hoursRemaining hours, $minutesRemaining minutes, $secondsRemaining seconds")
+
+				val task = object : TimerTask() {
+					override fun run() {
+						orderShuttle(data)
+						timer.cancel()
+					}
 				}
+				timer.schedule(task, timeUntil)
+			} else {
+				println("Target time has already passed.")
 			}
-			val timeUntil = getTimeUntil(hour, minute, second)
-			val hoursRemaining = timeUntil / 3600000
-			val minutesRemaining = (timeUntil % 3600000) / 60000
-			val secondsRemaining = ((timeUntil % 3600000) % 60000) / 1000
-			println("Time until timer starts: $hoursRemaining hours, $minutesRemaining minutes, $secondsRemaining seconds")
-			timer.schedule(task, timeUntil)
 		} else {
 			orderShuttle(data)
 		}
+	}
+
+	private fun calculateTargetTime(hour: Int, minute: Int, second: Int): Long {
+		val calendar = Calendar.getInstance()
+		calendar.set(Calendar.HOUR_OF_DAY, hour)
+		calendar.set(Calendar.MINUTE, minute)
+		calendar.set(Calendar.SECOND, second)
+		calendar.set(Calendar.MILLISECOND, 0)
+		val targetTime = calendar.timeInMillis
+
+		if (targetTime <= System.currentTimeMillis()) {
+			calendar.add(Calendar.DAY_OF_YEAR, 1)
+			return calendar.timeInMillis
+		}
+
+		return targetTime
 	}
 
 	private fun orderShuttle(data: Data) {
