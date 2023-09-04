@@ -1,13 +1,19 @@
 package hummel
 
-import java.time.LocalTime
+import java.util.*
 
-fun getTimeUntil(hour: Int, minute: Int, second: Int): Long {
-	val currentTime = LocalTime.now()
-	val targetTime = LocalTime.of(hour, minute, second)
-	var delay = targetTime.toSecondOfDay() - currentTime.toSecondOfDay()
-	if (delay < 0) {
-		delay += 24 * 60 * 60
+fun calculateTargetTime(hour: Int, minute: Int, second: Int): Long {
+	val calendar = Calendar.getInstance()
+	calendar.set(Calendar.HOUR_OF_DAY, hour)
+	calendar.set(Calendar.MINUTE, minute)
+	calendar.set(Calendar.SECOND, second)
+	calendar.set(Calendar.MILLISECOND, 0)
+	val targetTime = calendar.timeInMillis
+
+	if (targetTime <= System.currentTimeMillis()) {
+		calendar.add(Calendar.DAY_OF_YEAR, 1)
+		return calendar.timeInMillis
 	}
-	return delay * 1000L
+
+	return targetTime
 }

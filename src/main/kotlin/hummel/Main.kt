@@ -149,7 +149,7 @@ class GUI : JFrame() {
 		if (data.timer) {
 			val timer = Timer()
 			val currentTime = System.currentTimeMillis()
-			val targetTime = calculateTargetTime(1, 40, 0)
+			val targetTime = calculateTargetTime(0, 1, 0)
 
 			val timeUntil = targetTime - currentTime
 			if (timeUntil > 0) {
@@ -171,22 +171,6 @@ class GUI : JFrame() {
 		} else {
 			orderShuttle(data)
 		}
-	}
-
-	private fun calculateTargetTime(hour: Int, minute: Int, second: Int): Long {
-		val calendar = Calendar.getInstance()
-		calendar.set(Calendar.HOUR_OF_DAY, hour)
-		calendar.set(Calendar.MINUTE, minute)
-		calendar.set(Calendar.SECOND, second)
-		calendar.set(Calendar.MILLISECOND, 0)
-		val targetTime = calendar.timeInMillis
-
-		if (targetTime <= System.currentTimeMillis()) {
-			calendar.add(Calendar.DAY_OF_YEAR, 1)
-			return calendar.timeInMillis
-		}
-
-		return targetTime
 	}
 
 	private fun orderShuttle(data: Data) {
