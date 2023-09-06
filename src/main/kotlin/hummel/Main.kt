@@ -64,7 +64,7 @@ class GUI : JFrame() {
 		val inputPanel = JPanel()
 		inputPanel.layout = GridLayout(0, 2, 5, 5)
 
-		inputPanel.add(JLabel("Событие после заказа"))
+		inputPanel.add(JLabel("Событие после заказа:"))
 		val checkbox = Checkbox("Гибернация компьютера")
 		checkbox.state = true
 		inputPanel.add(checkbox)
