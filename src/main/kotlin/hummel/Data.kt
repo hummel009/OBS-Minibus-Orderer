@@ -9,5 +9,6 @@ data class Data(
 	val cityFrom: String,
 	val cityTo: String,
 	val token: String,
-	val timer: Boolean
+	val timer: Boolean,
+	val shouldPowerOff: Boolean
 )

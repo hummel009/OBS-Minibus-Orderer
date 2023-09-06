@@ -7,15 +7,13 @@ import org.apache.http.entity.ContentType
 import org.apache.http.entity.StringEntity
 import org.apache.http.impl.client.HttpClients
 import org.apache.http.util.EntityUtils
-import java.awt.BorderLayout
-import java.awt.EventQueue
-import java.awt.GridLayout
+import java.awt.*
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
-import java.util.*
 import java.util.Timer
 import javax.swing.*
 import javax.swing.border.EmptyBorder
+import kotlin.concurrent.timerTask
 
 fun main() {
 	EventQueue.invokeLater {
@@ -65,6 +63,11 @@ class GUI : JFrame() {
 
 		val inputPanel = JPanel()
 		inputPanel.layout = GridLayout(0, 2, 5, 5)
+
+		inputPanel.add(JLabel("Событие после заказа"))
+		val checkbox = Checkbox("Гибернация компьютера")
+		checkbox.state = true
+		inputPanel.add(checkbox)
 
 		inputPanel.add(JLabel("Номер телефона:"))
 		val phoneField = JTextField(20)
@@ -123,7 +126,8 @@ class GUI : JFrame() {
 				cityFromField.text,
 				cityToField.text,
 				tokenField.text,
-				timer
+				timer,
+				checkbox.state
 			)
 			process(data)
 		}
@@ -146,6 +150,7 @@ class GUI : JFrame() {
 		println("City To: ${data.cityTo}")
 		println("Token: ${data.token}")
 		println("Timer: ${data.timer}")
+		println("Power off: ${data.shouldPowerOff}")
 		if (data.timer) {
 			val timer = Timer()
 			val currentTime = System.currentTimeMillis()
@@ -158,11 +163,9 @@ class GUI : JFrame() {
 				val secondsRemaining = ((timeUntil % 3600000) % 60000) / 1000
 				println("Time until timer starts: $hoursRemaining hours, $minutesRemaining minutes, $secondsRemaining seconds")
 
-				val task = object : TimerTask() {
-					override fun run() {
-						orderShuttle(data)
-						timer.cancel()
-					}
+				val task = timerTask {
+					orderShuttle(data)
+					timer.cancel()
 				}
 				timer.schedule(task, timeUntil)
 			} else {
@@ -199,8 +202,18 @@ class GUI : JFrame() {
 				println("Retry in 60 seconds!")
 				Thread.sleep(60000)
 			} else {
-				JOptionPane.showMessageDialog(this, "Билет заказан.", "Message", JOptionPane.INFORMATION_MESSAGE)
+				if (!data.shouldPowerOff) {
+					JOptionPane.showMessageDialog(this, "Билет заказан.", "Message", JOptionPane.INFORMATION_MESSAGE)
+				}
 				break
+			}
+		}
+		if (data.shouldPowerOff) {
+			try {
+				val runtime = Runtime.getRuntime()
+				runtime.exec("rundll32.exe powrprof.dll,SetSuspendState 0,1,0")
+			} catch (e: AWTException) {
+				e.printStackTrace()
 			}
 		}
 	}
