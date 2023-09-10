@@ -1,5 +1,7 @@
 package hummel
 
+import com.formdev.flatlaf.FlatLightLaf
+import com.formdev.flatlaf.intellijthemes.materialthemeuilite.FlatGitHubDarkIJTheme
 import org.apache.http.client.methods.HttpGet
 import org.apache.http.client.methods.HttpOptions
 import org.apache.http.client.methods.HttpPost
@@ -15,15 +17,12 @@ import javax.swing.*
 import javax.swing.border.EmptyBorder
 import kotlin.concurrent.timerTask
 
+
 fun main() {
+	FlatLightLaf.setup()
 	EventQueue.invokeLater {
 		try {
-			for (info in UIManager.getInstalledLookAndFeels()) {
-				if ("Windows Classic" == info.name) {
-					UIManager.setLookAndFeel(info.className)
-					break
-				}
-			}
+			UIManager.setLookAndFeel(FlatGitHubDarkIJTheme())
 			val frame = GUI()
 			frame.isVisible = true
 		} catch (e: Exception) {
@@ -65,8 +64,8 @@ class GUI : JFrame() {
 		inputPanel.layout = GridLayout(0, 2, 5, 5)
 
 		inputPanel.add(JLabel("Событие после заказа:"))
-		val checkbox = Checkbox("Гибернация компьютера")
-		checkbox.state = true
+		val checkbox = JCheckBox("Гибернация компьютера")
+		checkbox.isSelected = true
 		inputPanel.add(checkbox)
 
 		inputPanel.add(JLabel("Номер телефона:"))
@@ -127,7 +126,7 @@ class GUI : JFrame() {
 				cityToField.text,
 				tokenField.text,
 				timer,
-				checkbox.state
+				checkbox.isSelected
 			)
 			process(data)
 		}
