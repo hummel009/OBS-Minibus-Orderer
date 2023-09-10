@@ -32,7 +32,6 @@ fun main() {
 }
 
 class GUI : JFrame() {
-
 	init {
 		title = "Hummel009's Shuttle Bot"
 		defaultCloseOperation = EXIT_ON_CLOSE
