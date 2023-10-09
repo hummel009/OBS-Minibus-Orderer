@@ -179,34 +179,44 @@ class GUI : JFrame() {
 
 	private fun orderShuttle(data: Data) {
 		while (true) {
-			unlockUserInfo(data)
+			try {
+				unlockUserInfo(data)
 
-			val userInfo = getUserInfo(data)
-			val shouldExecute = getIsTicketNotOrdered(userInfo, data)
+				val userInfo = getUserInfo(data)
+				val shouldExecute = getIsTicketNotOrdered(userInfo, data)
 
-			if (shouldExecute) {
-				val bookingsInfo = getBookingsInfo()
-				val bookingIDs = getBookingIDs(bookingsInfo, data)
+				if (shouldExecute) {
+					val currentTime = getCurrentTime()
+					val bookingsInfo = getBookingsInfo()
+					val bookingIDs = getBookingIDs(bookingsInfo, data)
 
-				println("From City ID: " + bookingIDs.first)
-				println("To City ID: " + bookingIDs.second)
+					println("[$currentTime] From City ID: " + bookingIDs.first)
+					println("[$currentTime] To City ID: " + bookingIDs.second)
 
-				val transfersInfo = getTransfersInfo(bookingIDs.first, bookingIDs.second, data)
-				val transferIDs = getTransferIDs(transfersInfo, data)
+					val transfersInfo = getTransfersInfo(bookingIDs.first, bookingIDs.second, data)
+					val transferIDs = getTransferIDs(transfersInfo, data)
 
-				println("From Stop ID: ${transferIDs.first}")
-				println("To Stop ID: ${transferIDs.second}")
-				println("Time ID: ${transferIDs.third}")
+					println("[$currentTime] From Stop ID: ${transferIDs.first}")
+					println("[$currentTime] To Stop ID: ${transferIDs.second}")
+					println("[$currentTime] Time ID: ${transferIDs.third}")
 
-				orderTicket(transferIDs.first, transferIDs.second, transferIDs.third, data)
+					orderTicket(transferIDs.first, transferIDs.second, transferIDs.third, data)
 
-				println("Retry in 60 seconds!")
-				Thread.sleep(60000)
-			} else {
-				if (!data.shouldPowerOff) {
-					JOptionPane.showMessageDialog(this, "Билет заказан.", "Message", JOptionPane.INFORMATION_MESSAGE)
+					println("Retry in 60 seconds!")
+					Thread.sleep(60000)
+				} else {
+					if (!data.shouldPowerOff) {
+						JOptionPane.showMessageDialog(
+							this,
+							"Билет заказан.",
+							"Message",
+							JOptionPane.INFORMATION_MESSAGE
+						)
+					}
+					break
 				}
-				break
+			} catch (e: Exception) {
+				e.printStackTrace()
 			}
 		}
 		if (data.shouldPowerOff) {
