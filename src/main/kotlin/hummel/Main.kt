@@ -18,6 +18,7 @@ import java.time.format.DateTimeFormatter
 import java.util.Timer
 import javax.swing.*
 import javax.swing.border.EmptyBorder
+import kotlin.concurrent.thread
 import kotlin.concurrent.timerTask
 
 
@@ -118,19 +119,21 @@ class GUI : JFrame() {
 		var data: Data
 		val saveButton = JButton("Запуск")
 		saveButton.addActionListener {
-			data = Data(
-				phoneField.text,
-				dateField.text,
-				timeField.text,
-				stopFromField.text,
-				stopToField.text,
-				cityFromField.text,
-				cityToField.text,
-				tokenField.text,
-				timer,
-				checkbox.isSelected
-			)
-			process(data)
+			thread {
+				data = Data(
+					phoneField.text,
+					dateField.text,
+					timeField.text,
+					stopFromField.text,
+					stopToField.text,
+					cityFromField.text,
+					cityToField.text,
+					tokenField.text,
+					timer,
+					checkbox.isSelected
+				)
+				process(data)
+			}
 		}
 
 		contentPanel.add(radioPanel, BorderLayout.NORTH)
@@ -207,10 +210,7 @@ class GUI : JFrame() {
 				} else {
 					if (!data.shouldPowerOff) {
 						JOptionPane.showMessageDialog(
-							this,
-							"Билет заказан.",
-							"Message",
-							JOptionPane.INFORMATION_MESSAGE
+							this, "Билет заказан.", "Message", JOptionPane.INFORMATION_MESSAGE
 						)
 					}
 					break
