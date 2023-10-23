@@ -10,5 +10,6 @@ data class Data(
 	val cityTo: String,
 	val token: String,
 	val timer: Boolean,
-	val shouldPowerOff: Boolean
+	val shutdown: Boolean,
+	val exit: Boolean
 )

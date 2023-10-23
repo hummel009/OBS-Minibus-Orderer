@@ -20,6 +20,7 @@ import javax.swing.*
 import javax.swing.border.EmptyBorder
 import kotlin.concurrent.thread
 import kotlin.concurrent.timerTask
+import kotlin.system.exitProcess
 
 
 fun main() {
@@ -66,10 +67,12 @@ class GUI : JFrame() {
 		val inputPanel = JPanel()
 		inputPanel.layout = GridLayout(0, 2, 5, 5)
 
-		inputPanel.add(JLabel("Событие после заказа:"))
-		val checkbox = JCheckBox("Гибернация компьютера")
-		checkbox.isSelected = true
-		inputPanel.add(checkbox)
+		val checkbox1 = JCheckBox("Гибернация ПК")
+		checkbox1.isSelected = false
+		inputPanel.add(checkbox1)
+		val checkbox2 = JCheckBox("Выключение бота")
+		checkbox2.isSelected = true
+		inputPanel.add(checkbox2)
 
 		inputPanel.add(JLabel("Номер телефона:"))
 		val phoneField = JTextField(20)
@@ -130,7 +133,8 @@ class GUI : JFrame() {
 					cityToField.text,
 					tokenField.text,
 					timer,
-					checkbox.isSelected
+					checkbox1.isSelected,
+					checkbox2.isSelected
 				)
 				process(data)
 			}
@@ -154,7 +158,8 @@ class GUI : JFrame() {
 		println("City To: ${data.cityTo}")
 		println("Token: ${data.token}")
 		println("Timer: ${data.timer}")
-		println("Power off: ${data.shouldPowerOff}")
+		println("Shutdown: ${data.shutdown}")
+		println("Exit: ${data.exit}")
 		if (data.timer) {
 			val timer = Timer()
 			val currentTime = System.currentTimeMillis()
@@ -208,7 +213,10 @@ class GUI : JFrame() {
 					println("Retry in 60 seconds!")
 					Thread.sleep(60000)
 				} else {
-					if (!data.shouldPowerOff) {
+					if (data.exit) {
+						exitProcess(0)
+					}
+					if (!data.shutdown) {
 						JOptionPane.showMessageDialog(
 							this, "Билет заказан.", "Message", JOptionPane.INFORMATION_MESSAGE
 						)
@@ -219,7 +227,7 @@ class GUI : JFrame() {
 				e.printStackTrace()
 			}
 		}
-		if (data.shouldPowerOff) {
+		if (data.shutdown) {
 			try {
 				val runtime = Runtime.getRuntime()
 				runtime.exec("rundll32.exe powrprof.dll,SetSuspendState 0,1,0")
