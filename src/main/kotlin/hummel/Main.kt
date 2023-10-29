@@ -186,7 +186,7 @@ class GUI : JFrame() {
 	}
 
 	private fun orderShuttle(data: Data) {
-		while (true) {
+		loop@ while (true) {
 			try {
 				unlockUserInfo(data)
 
@@ -210,18 +210,16 @@ class GUI : JFrame() {
 
 					orderTicket(transferIDs.first, transferIDs.second, transferIDs.third, data)
 
-					println("Retry in 60 seconds!")
-					Thread.sleep(60000)
+					println("Retry in 30 seconds!")
+					Thread.sleep(30000)
 				} else {
-					if (data.exit) {
-						exitProcess(0)
+					if (data.exit || data.shutdown) {
+						break@loop
 					}
-					if (!data.shutdown) {
-						JOptionPane.showMessageDialog(
-							this, "Билет заказан.", "Message", JOptionPane.INFORMATION_MESSAGE
-						)
-					}
-					break
+					JOptionPane.showMessageDialog(
+						this, "Билет заказан.", "Message", JOptionPane.INFORMATION_MESSAGE
+					)
+					break@loop
 				}
 			} catch (e: Exception) {
 				e.printStackTrace()
@@ -234,6 +232,9 @@ class GUI : JFrame() {
 			} catch (e: AWTException) {
 				e.printStackTrace()
 			}
+		}
+		if (data.exit) {
+			exitProcess(0)
 		}
 	}
 
