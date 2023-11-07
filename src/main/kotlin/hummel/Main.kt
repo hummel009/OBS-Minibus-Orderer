@@ -210,8 +210,8 @@ class GUI : JFrame() {
 
 					orderTicket(transferIDs.first, transferIDs.second, transferIDs.third, data)
 
-					println("Retry in 30 seconds!")
-					Thread.sleep(30000)
+					println("Retry in 60 seconds!")
+					Thread.sleep(60000)
 				} else {
 					if (data.exit || data.shutdown) {
 						break@loop
