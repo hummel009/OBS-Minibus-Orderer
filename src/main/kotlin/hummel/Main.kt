@@ -14,6 +14,7 @@ import java.awt.BorderLayout
 import java.awt.EventQueue
 import java.awt.GridLayout
 import java.time.LocalDate
+import java.time.LocalTime
 import java.time.format.DateTimeFormatter
 import java.util.Timer
 import javax.swing.*
@@ -40,7 +41,7 @@ class GUI : JFrame() {
 	init {
 		title = "Hummel009's Shuttle Bot"
 		defaultCloseOperation = EXIT_ON_CLOSE
-		setBounds(0, 0, 600, 500)
+		setBounds(0, 0, 500, 400)
 
 		val contentPanel = JPanel()
 		contentPanel.border = EmptyBorder(5, 5, 5, 5)
@@ -194,7 +195,7 @@ class GUI : JFrame() {
 				val shouldExecute = getIsTicketNotOrdered(userInfo, data)
 
 				if (shouldExecute) {
-					val currentTime = getCurrentTime()
+					val currentTime = LocalTime.now().toString()
 					val bookingsInfo = getBookingsInfo()
 					val bookingIDs = getBookingIDs(bookingsInfo, data)
 

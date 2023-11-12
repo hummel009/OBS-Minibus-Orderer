@@ -1,6 +1,5 @@
 package hummel
 
-import java.time.LocalTime
 import java.util.*
 
 fun calculateTargetTime(hour: Int, minute: Int, second: Int): Long {
@@ -17,10 +16,4 @@ fun calculateTargetTime(hour: Int, minute: Int, second: Int): Long {
 	}
 
 	return targetTime
-}
-
-fun getCurrentTime(): String {
-	val currentTime = LocalTime.now()
-	val formattedTime = currentTime.toString()
-	return "$formattedTime"
 }
