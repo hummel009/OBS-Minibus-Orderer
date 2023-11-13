@@ -16,11 +16,11 @@ import java.awt.GridLayout
 import java.time.LocalDate
 import java.time.LocalTime
 import java.time.format.DateTimeFormatter
-import java.util.Timer
+import java.util.concurrent.Executors
+import java.util.concurrent.TimeUnit
 import javax.swing.*
 import javax.swing.border.EmptyBorder
 import kotlin.concurrent.thread
-import kotlin.concurrent.timerTask
 import kotlin.system.exitProcess
 
 
@@ -162,7 +162,8 @@ class GUI : JFrame() {
 		println("Shutdown: ${data.shutdown}")
 		println("Exit: ${data.exit}")
 		if (data.timer) {
-			val timer = Timer()
+			val scheduler = Executors.newScheduledThreadPool(1)
+
 			val currentTime = System.currentTimeMillis()
 			val targetTime = calculateTargetTime(0, 1, 0)
 
@@ -173,11 +174,11 @@ class GUI : JFrame() {
 				val secondsRemaining = ((timeUntil % 3600000) % 60000) / 1000
 				println("Time until timer starts: $hoursRemaining hours, $minutesRemaining minutes, $secondsRemaining seconds")
 
-				val task = timerTask {
+				val task = {
 					orderShuttle(data)
-					timer.cancel()
+					scheduler.shutdown()
 				}
-				timer.schedule(task, timeUntil)
+				scheduler.schedule(task, timeUntil, TimeUnit.MILLISECONDS)
 			} else {
 				println("Target time has already passed.")
 			}
