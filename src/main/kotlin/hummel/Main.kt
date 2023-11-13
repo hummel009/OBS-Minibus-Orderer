@@ -178,7 +178,7 @@ class GUI : JFrame() {
 					orderShuttle(data)
 					scheduler.shutdown()
 				}
-				scheduler.schedule(task, timeUntil, TimeUnit.MILLISECONDS)
+				scheduler.schedule(task, timeUntil, TimeUnit.MINUTES)
 			} else {
 				println("Target time has already passed.")
 			}
