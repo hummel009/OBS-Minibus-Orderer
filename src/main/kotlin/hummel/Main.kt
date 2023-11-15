@@ -9,7 +9,6 @@ import org.apache.http.entity.ContentType
 import org.apache.http.entity.StringEntity
 import org.apache.http.impl.client.HttpClients
 import org.apache.http.util.EntityUtils
-import java.awt.AWTException
 import java.awt.BorderLayout
 import java.awt.EventQueue
 import java.awt.GridLayout
@@ -228,12 +227,7 @@ class GUI : JFrame() {
 			}
 		}
 		if (data.shutdown) {
-			try {
-				val runtime = Runtime.getRuntime()
-				runtime.exec("rundll32.exe powrprof.dll,SetSuspendState 0,1,0")
-			} catch (e: AWTException) {
-				e.printStackTrace()
-			}
+			Runtime.getRuntime().exec("rundll32.exe powrprof.dll,SetSuspendState 0,1,0")
 		}
 		if (data.exit) {
 			exitProcess(0)
@@ -241,76 +235,66 @@ class GUI : JFrame() {
 	}
 
 	private fun unlockUserInfo(data: Data) {
-		val client = HttpClients.createDefault()
-		val request = HttpOptions("https://api.obs.by/clients/withReservations/${data.phone}")
+		HttpClients.createDefault().use {
+			val request = HttpOptions("https://api.obs.by/clients/withReservations/${data.phone}")
 
-		request.addHeader("Access-Control-Request-Headers", "authorization")
-		request.addHeader("Access-Control-Request-Method", "GET")
+			request.addHeader("Access-Control-Request-Headers", "authorization")
+			request.addHeader("Access-Control-Request-Method", "GET")
 
-		val response = client.execute(request)
-
-		response.close()
-		client.close()
+			it.execute(request).use { }
+		}
 	}
 
 	private fun getUserInfo(data: Data): String {
-		val client = HttpClients.createDefault()
-		val request = HttpGet("https://api.obs.by/clients/withReservations/${data.phone}")
+		HttpClients.createDefault().use {
+			val request = HttpGet("https://api.obs.by/clients/withReservations/${data.phone}")
 
-		request.addHeader("Authorization", "Bearer ${data.token}")
+			request.addHeader("Authorization", "Bearer ${data.token}")
 
-		val response = client.execute(request)
-		val entity = response.entity
-		val userInfo = EntityUtils.toString(entity)
+			it.execute(request).use { response ->
+				val entity = response.entity
 
-		response.close()
-		client.close()
-
-		return userInfo
+				return EntityUtils.toString(entity)
+			}
+		}
 	}
 
 	private fun getBookingsInfo(): String {
-		val client = HttpClients.createDefault()
-		val request = HttpGet("https://api.obs.by/cities/forBooking")
+		HttpClients.createDefault().use {
+			val request = HttpGet("https://api.obs.by/cities/forBooking")
 
-		val response = client.execute(request)
-		val entity = response.entity
-		val bookingsInfo = EntityUtils.toString(entity)
+			it.execute(request).use { response ->
+				val entity = response.entity
 
-		response.close()
-		client.close()
-
-		return bookingsInfo
+				return EntityUtils.toString(entity)
+			}
+		}
 	}
 
 	private fun getTransfersInfo(fromCityID: String, toCityID: String, data: Data): String {
-		val client = HttpClients.createDefault()
-		val request = HttpPost("https://api.obs.by/transfers/betweenCities")
+		HttpClients.createDefault().use {
+			val request = HttpPost("https://api.obs.by/transfers/betweenCities")
 
-		val payload = payloadTransfersInfo(fromCityID, toCityID, data)
-		request.entity = StringEntity(payload, ContentType.APPLICATION_JSON)
+			val payload = payloadTransfersInfo(fromCityID, toCityID, data)
+			request.entity = StringEntity(payload, ContentType.APPLICATION_JSON)
 
-		val response = client.execute(request)
-		val entity = response.entity
-		val transfersInfo = EntityUtils.toString(entity)
+			it.execute(request).use { response ->
+				val entity = response.entity
 
-		response.close()
-		client.close()
-
-		return transfersInfo
+				return EntityUtils.toString(entity)
+			}
+		}
 	}
 
 	private fun orderTicket(fromStopID: String, toStopID: String, timeID: String, data: Data) {
-		val client = HttpClients.createDefault()
-		val request = HttpPost("https://api.obs.by/reservations/book")
-		request.addHeader("Authorization", "Bearer ${data.token}")
+		HttpClients.createDefault().use {
+			val request = HttpPost("https://api.obs.by/reservations/book")
+			request.addHeader("Authorization", "Bearer ${data.token}")
 
-		val payload = payloadOrderTicket(fromStopID, toStopID, timeID, data)
-		request.entity = StringEntity(payload, ContentType.APPLICATION_JSON)
+			val payload = payloadOrderTicket(fromStopID, toStopID, timeID, data)
+			request.entity = StringEntity(payload, ContentType.APPLICATION_JSON)
 
-		val response = client.execute(request)
-
-		response.close()
-		client.close()
+			it.execute(request).use { }
+		}
 	}
 }
