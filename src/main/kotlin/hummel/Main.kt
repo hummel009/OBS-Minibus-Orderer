@@ -254,7 +254,7 @@ class GUI : JFrame() {
 			it.execute(request).use { response ->
 				val entity = response.entity
 
-				return EntityUtils.toString(entity)
+				return@getUserInfo EntityUtils.toString(entity)
 			}
 		}
 	}
@@ -266,7 +266,7 @@ class GUI : JFrame() {
 			it.execute(request).use { response ->
 				val entity = response.entity
 
-				return EntityUtils.toString(entity)
+				return@getBookingsInfo EntityUtils.toString(entity)
 			}
 		}
 	}
@@ -281,7 +281,7 @@ class GUI : JFrame() {
 			it.execute(request).use { response ->
 				val entity = response.entity
 
-				return EntityUtils.toString(entity)
+				return@getTransfersInfo EntityUtils.toString(entity)
 			}
 		}
 	}

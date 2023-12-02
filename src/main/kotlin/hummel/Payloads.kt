@@ -8,7 +8,7 @@ fun payloadTransfersInfo(fromCityID: String, toCityID: String, data: Data): Stri
 			"date": "${data.date}",
 			"client": "${data.phone}"
 		}
-	""".trimIndent()
+		""".trimIndent()
 }
 
 fun payloadOrderTicket(fromStopID: String, toStopID: String, timeID: String, data: Data): String {
@@ -25,5 +25,5 @@ fun payloadOrderTicket(fromStopID: String, toStopID: String, timeID: String, dat
 				"phone": "${data.phone}"
 			}
 		}
-	""".trimIndent()
+		""".trimIndent()
 }

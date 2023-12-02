@@ -5,12 +5,9 @@ import com.google.gson.Gson
 fun getIsTicketNotOrdered(responseUserInfo: String, data: Data): Boolean {
 	val userInfo = Gson().fromJson(responseUserInfo, SUserInfo::class.java)
 
-	for (reservation in userInfo.reservations) {
-		if (reservation.from.name == data.stopFrom && reservation.from.time == data.time && reservation.date == data.date) {
-			return false
-		}
+	return userInfo.reservations.none {
+		it.from.name == data.stopFrom && it.from.time == data.time && it.date == data.date
 	}
-	return true
 }
 
 fun getTransferIDs(responseBetweenCities: String, data: Data): Triple<String, String, String> {
@@ -51,5 +48,5 @@ fun getBookingIDs(responseBooking: String, data: Data): Pair<String, String> {
 		}
 	}
 
-	return Pair(fromID, toID)
+	return fromID to toID
 }
