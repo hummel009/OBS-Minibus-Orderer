@@ -227,7 +227,18 @@ class GUI : JFrame() {
 			}
 		}
 		if (data.shutdown) {
-			Runtime.getRuntime().exec("rundll32.exe powrprof.dll,SetSuspendState 0,1,0")
+			try {
+				val processBuilder = ProcessBuilder("rundll32.exe", "powrprof.dll,SetSuspendState", "0,1,0")
+				val process = processBuilder.start()
+				val exitCode = process.waitFor()
+				if (exitCode == 0) {
+					println("Command executed successfully.")
+				} else {
+					println("Command execution failed with exit code: $exitCode")
+				}
+			} catch (e: Exception) {
+				e.printStackTrace()
+			}
 		}
 		if (data.exit) {
 			exitProcess(0)
