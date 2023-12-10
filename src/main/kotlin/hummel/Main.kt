@@ -2,13 +2,13 @@ package hummel
 
 import com.formdev.flatlaf.FlatLightLaf
 import com.formdev.flatlaf.intellijthemes.materialthemeuilite.FlatGitHubDarkIJTheme
-import org.apache.http.client.methods.HttpGet
-import org.apache.http.client.methods.HttpOptions
-import org.apache.http.client.methods.HttpPost
-import org.apache.http.entity.ContentType
-import org.apache.http.entity.StringEntity
-import org.apache.http.impl.client.HttpClients
-import org.apache.http.util.EntityUtils
+import org.apache.hc.client5.http.classic.methods.HttpGet
+import org.apache.hc.client5.http.classic.methods.HttpOptions
+import org.apache.hc.client5.http.classic.methods.HttpPost
+import org.apache.hc.client5.http.impl.classic.HttpClients
+import org.apache.hc.core5.http.ContentType
+import org.apache.hc.core5.http.io.entity.EntityUtils
+import org.apache.hc.core5.http.io.entity.StringEntity
 import java.awt.BorderLayout
 import java.awt.EventQueue
 import java.awt.GridLayout
@@ -21,7 +21,6 @@ import javax.swing.*
 import javax.swing.border.EmptyBorder
 import kotlin.concurrent.thread
 import kotlin.system.exitProcess
-
 
 fun main() {
 	FlatLightLaf.setup()
@@ -252,7 +251,7 @@ class GUI : JFrame() {
 			request.addHeader("Access-Control-Request-Headers", "authorization")
 			request.addHeader("Access-Control-Request-Method", "GET")
 
-			it.execute(request).use { }
+			it.execute(request) { }
 		}
 	}
 
@@ -262,10 +261,10 @@ class GUI : JFrame() {
 
 			request.addHeader("Authorization", "Bearer ${data.token}")
 
-			it.execute(request).use { response ->
+			return@getUserInfo it.execute(request) { response ->
 				val entity = response.entity
 
-				return@getUserInfo EntityUtils.toString(entity)
+				EntityUtils.toString(entity)
 			}
 		}
 	}
@@ -274,10 +273,10 @@ class GUI : JFrame() {
 		HttpClients.createDefault().use {
 			val request = HttpGet("https://api.obs.by/cities/forBooking")
 
-			it.execute(request).use { response ->
+			return@getBookingsInfo it.execute(request) { response ->
 				val entity = response.entity
 
-				return@getBookingsInfo EntityUtils.toString(entity)
+				EntityUtils.toString(entity)
 			}
 		}
 	}
@@ -289,10 +288,10 @@ class GUI : JFrame() {
 			val payload = payloadTransfersInfo(fromCityID, toCityID, data)
 			request.entity = StringEntity(payload, ContentType.APPLICATION_JSON)
 
-			it.execute(request).use { response ->
+			return@getTransfersInfo it.execute(request) { response ->
 				val entity = response.entity
 
-				return@getTransfersInfo EntityUtils.toString(entity)
+				EntityUtils.toString(entity)
 			}
 		}
 	}
@@ -305,7 +304,7 @@ class GUI : JFrame() {
 			val payload = payloadOrderTicket(fromStopID, toStopID, timeID, data)
 			request.entity = StringEntity(payload, ContentType.APPLICATION_JSON)
 
-			it.execute(request).use { }
+			it.execute(request) { }
 		}
 	}
 }
