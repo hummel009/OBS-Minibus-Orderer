@@ -1,17 +1,18 @@
 package hummel
 
-import java.util.*
+import java.time.Instant
+import java.time.LocalDate
+import java.time.ZoneId
+import java.time.temporal.ChronoUnit
 
 fun calculateTargetTime(hour: Int, minute: Int, second: Int): Long {
 	val currentTime = System.currentTimeMillis()
-	val calendar = Calendar.getInstance()
-	calendar.set(Calendar.HOUR_OF_DAY, hour)
-	calendar.set(Calendar.MINUTE, minute)
-	calendar.set(Calendar.SECOND, second)
+	val now = Instant.ofEpochMilli(currentTime)
+	val targetTime = LocalDate.now().atTime(hour, minute, second).atZone(ZoneId.systemDefault()).toInstant()
 
-	if (calendar.timeInMillis <= currentTime) {
-		calendar.add(Calendar.DAY_OF_MONTH, 1)
+	if (targetTime <= now) {
+		return targetTime.plus(1, ChronoUnit.DAYS).toEpochMilli()
 	}
 
-	return calendar.timeInMillis
+	return targetTime.toEpochMilli()
 }
