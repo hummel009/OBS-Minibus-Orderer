@@ -39,7 +39,7 @@ class GUI : JFrame() {
 	init {
 		title = "Hummel009's Shuttle Bot"
 		defaultCloseOperation = EXIT_ON_CLOSE
-		setBounds(0, 0, 500, 400)
+		setBounds(0, 0, 600, 500)
 
 		val contentPanel = JPanel()
 		contentPanel.border = EmptyBorder(5, 5, 5, 5)
