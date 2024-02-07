@@ -1,4 +1,4 @@
-package hummel
+package com.github.hummel.shuttle
 
 fun payloadTransfersInfo(fromCityID: String, toCityID: String, data: Data): String {
 	return """

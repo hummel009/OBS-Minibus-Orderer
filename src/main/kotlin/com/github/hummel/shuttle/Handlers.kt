@@ -1,4 +1,4 @@
-package hummel
+package com.github.hummel.shuttle
 
 import com.google.gson.Gson
 

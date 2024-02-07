@@ -1,4 +1,4 @@
-package hummel
+package com.github.hummel.shuttle
 
 import java.time.Instant
 import java.time.LocalDate

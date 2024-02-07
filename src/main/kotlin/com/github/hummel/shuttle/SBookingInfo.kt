@@ -1,4 +1,4 @@
-package hummel
+package com.github.hummel.shuttle
 
 data class SBookingInfo(
 	val from: FromCity, val to: List<ToCity>

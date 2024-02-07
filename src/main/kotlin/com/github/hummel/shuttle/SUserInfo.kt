@@ -1,4 +1,4 @@
-package hummel
+package com.github.hummel.shuttle
 
 data class SUserInfo(
 	val name: String,
