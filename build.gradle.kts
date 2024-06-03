@@ -13,11 +13,11 @@ val embed: Configuration by configurations.creating
 
 dependencies {
 	embed("org.jetbrains.kotlin:kotlin-stdlib:2.0.0")
-	embed("com.google.code.gson:gson:2.10.1")
+	embed("com.google.code.gson:gson:2.11.0")
 	embed("org.apache.httpcomponents.client5:httpclient5:5.3.1")
 	embed("com.formdev:flatlaf:3.4.1")
 	embed("com.formdev:flatlaf-intellij-themes:3.4.1")
-	implementation("com.google.code.gson:gson:2.10.1")
+	implementation("com.google.code.gson:gson:2.11.0")
 	implementation("org.apache.httpcomponents.client5:httpclient5:5.3.1")
 	implementation("com.formdev:flatlaf:3.4.1")
 	implementation("com.formdev:flatlaf-intellij-themes:3.4.1")
