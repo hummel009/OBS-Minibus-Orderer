@@ -4,6 +4,7 @@ import java.time.Instant
 import java.time.LocalDate
 import java.time.ZoneId
 import java.time.temporal.ChronoUnit
+import javax.swing.JComboBox
 
 fun calculateTargetTime(hour: Int, minute: Int, second: Int): Long {
 	val currentTime = System.currentTimeMillis()
@@ -16,3 +17,5 @@ fun calculateTargetTime(hour: Int, minute: Int, second: Int): Long {
 
 	return targetTime.toEpochMilli()
 }
+
+fun <E> JComboBox<E>.getSelectedItemString() = selectedItem!!.toString()

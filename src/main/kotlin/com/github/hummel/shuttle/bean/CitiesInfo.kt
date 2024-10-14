@@ -1,6 +1,6 @@
-package com.github.hummel.shuttle
+package com.github.hummel.shuttle.bean
 
-data class SBookingInfo(
+data class CitiesInfo(
 	val from: FromCity, val to: List<ToCity>
 ) {
 	data class FromCity(

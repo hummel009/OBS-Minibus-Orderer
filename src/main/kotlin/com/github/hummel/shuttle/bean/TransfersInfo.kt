@@ -1,6 +1,6 @@
-package com.github.hummel.shuttle
+package com.github.hummel.shuttle.bean
 
-data class STransferInfo(
+data class TransfersInfo(
 	val id: String,
 	val date: String,
 	val bookingEnabled: Boolean,

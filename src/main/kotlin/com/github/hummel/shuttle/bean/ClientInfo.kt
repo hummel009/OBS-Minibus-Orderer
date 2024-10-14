@@ -1,6 +1,6 @@
-package com.github.hummel.shuttle
+package com.github.hummel.shuttle.bean
 
-data class SUserInfo(
+data class ClientInfo(
 	val name: String,
 	val phone: String,
 	val surname: String,

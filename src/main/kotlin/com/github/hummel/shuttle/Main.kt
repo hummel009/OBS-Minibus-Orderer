@@ -2,25 +2,18 @@ package com.github.hummel.shuttle
 
 import com.formdev.flatlaf.FlatLightLaf
 import com.formdev.flatlaf.intellijthemes.materialthemeuilite.FlatGitHubDarkIJTheme
-import org.apache.hc.client5.http.classic.methods.HttpGet
-import org.apache.hc.client5.http.classic.methods.HttpOptions
-import org.apache.hc.client5.http.classic.methods.HttpPost
-import org.apache.hc.client5.http.impl.classic.HttpClients
-import org.apache.hc.core5.http.ContentType
-import org.apache.hc.core5.http.io.entity.EntityUtils
-import org.apache.hc.core5.http.io.entity.StringEntity
-import java.awt.BorderLayout
+import com.github.hummel.shuttle.service.CitiesService
+import com.github.hummel.shuttle.service.ClientsService
+import com.github.hummel.shuttle.service.TransfersService
 import java.awt.EventQueue
 import java.awt.GridLayout
 import java.time.LocalDate
-import java.time.LocalTime
 import java.time.format.DateTimeFormatter
-import java.util.concurrent.Executors
-import java.util.concurrent.TimeUnit
 import javax.swing.*
 import javax.swing.border.EmptyBorder
 import kotlin.concurrent.thread
-import kotlin.system.exitProcess
+
+val formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd")
 
 fun main() {
 	FlatLightLaf.setup()
@@ -36,275 +29,395 @@ fun main() {
 }
 
 class GUI : JFrame() {
+	var cache = Cache()
+
+	var citiesFromNames = arrayOf("Не выбрано...")
+	var citiesToNames = arrayOf("Не выбрано...")
+	var stopsFromNames = arrayOf("Не выбрано...")
+	var stopsToNames = arrayOf("Не выбрано...")
+	var times = arrayOf("Не выбрано...")
+
+	val citiesFromNamesDropdown = JComboBox(citiesFromNames)
+	val citiesToNamesDropdown = JComboBox(citiesToNames)
+	val stopsFromNamesDropdown = JComboBox(stopsFromNames)
+	val stopsToNamesDropdown = JComboBox(stopsToNames)
+	val timesDropdown = JComboBox(times)
+
+	val phoneField = JTextField(20)
+	val tokenField = JTextField(20)
+	val dateField = JTextField(20)
+
+	val refreshCitiesFromButton = JButton("Обновить список городов")
+	val refreshCitiesToButton = JButton("Обновить список городов прибытия")
+	val refreshTimesFromButton = JButton("Обновить доступные времена отправки")
+	val refreshStopsFromButton = JButton("Обновить список остановок отправки")
+	val refreshStopsToButton = JButton("Обновить список остановок прибытия")
+
+	var offPc = false
+	var offBot = false
+	var timerMode = true
+	var date = LocalDate.now().format(formatter)
+	var phone = "+375296186183"
+	var token =
+		"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJwaG9uZSI6IiszNzUyOTYxODYxODMiLCJyb2xlIjoiY2xpZW50IiwiaWF0IjoxNzI4OTIzMDM0fQ.qfks2dNmBB2XBPkAQMJBDNtePgA_Ci3K2wl5B5MMvYU"
+
 	init {
 		title = "Hummel009's Shuttle Bot"
 		defaultCloseOperation = EXIT_ON_CLOSE
-		setBounds(0, 0, 600, 500)
+
+		setBounds(0, 0, 600, 900)
 
 		val contentPanel = JPanel()
 		contentPanel.border = EmptyBorder(5, 5, 5, 5)
-		contentPanel.layout = BorderLayout(0, 0)
+		contentPanel.layout = GridLayout(0, 1, 0, 0)
 		contentPane = contentPanel
 
-		var timer = true
+		val radioPanel = createRadioPanel()
+		val checkboxPanel = createCheckboxPanel()
+		val tokenPanel = createTokenPanel()
+		val phonePanel = createPhonePanel()
+		val refreshCitiesFromPanel = createRefreshCitiesFromPanel()
+		val citiesFromPanel = createCitiesFromPanel()
+		val refreshCitiesToPanel = createRefreshCitiesToPanel()
+		val citiesToPanel = createCitiesToPanel()
+		val datePanel = createDatePanel()
+		val refreshTimesPanel = createRefreshTimesFromPanel()
+		val timePanel = createTimePanel()
+		val refreshStopsFromPanel = createRefreshStopsFromPanel()
+		val stopsFromPanel = createStopsFromPanel()
+		val refreshStopsToPanel = createRefreshStopsToPanel()
+		val stopsToPanel = createStopsToPanel()
 
-		val radioPanel = JPanel()
-		val radioTimer = JRadioButton("Таймер (заказ ночью)")
-		val radioMonitoring = JRadioButton("Мониторинг (попытки раз в минуту)")
-		radioTimer.isSelected = true
-		radioTimer.addActionListener {
-			timer = true
-			radioMonitoring.isSelected = false
-		}
-		radioMonitoring.addActionListener {
-			timer = false
-			radioTimer.isSelected = false
-		}
-		radioPanel.add(radioTimer)
-		radioPanel.add(radioMonitoring)
-
-		val inputPanel = JPanel()
-		inputPanel.layout = GridLayout(0, 2, 5, 5)
-
-		val checkbox1 = JCheckBox("Гибернация ПК")
-		checkbox1.isSelected = false
-		inputPanel.add(checkbox1)
-		val checkbox2 = JCheckBox("Выключение бота")
-		checkbox2.isSelected = true
-		inputPanel.add(checkbox2)
-
-		inputPanel.add(JLabel("Номер телефона:"))
-		val phoneField = JTextField(20)
-		phoneField.text = "+375296186182"
-		inputPanel.add(phoneField)
-
-		inputPanel.add(JLabel("Дата отправки:"))
-		val dateField = JTextField(20)
-		val currentDate = LocalDate.now()
-		val futureDate = currentDate.plusDays(8)
-		val formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd")
-		val formattedDate = futureDate.format(formatter)
-		dateField.text = formattedDate
-		inputPanel.add(dateField)
-
-		inputPanel.add(JLabel("Время отправки:"))
-		val timeField = JTextField(20)
-		timeField.text = "07:45"
-		inputPanel.add(timeField)
-
-		inputPanel.add(JLabel("Остановка отправки:"))
-		val stopFromField = JTextField(20)
-		stopFromField.text = "РДК"
-		inputPanel.add(stopFromField)
-
-		inputPanel.add(JLabel("Остановка прибытия:"))
-		val stopToField = JTextField(20)
-		stopToField.text = "ст.м.Восток"
-		inputPanel.add(stopToField)
-
-		inputPanel.add(JLabel("Город отправки:"))
-		val cityFromField = JTextField(20)
-		cityFromField.text = "Логойск"
-		inputPanel.add(cityFromField)
-
-		inputPanel.add(JLabel("Город прибытия:"))
-		val cityToField = JTextField(20)
-		cityToField.text = "Минск"
-		inputPanel.add(cityToField)
-
-		inputPanel.add(JLabel("Токен:"))
-		val tokenField = JTextField(20)
-		tokenField.text =
-			"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJwaG9uZSI6IiszNzUyOTYxODYxODIiLCJyb2xlIjoiY2xpZW50IiwiaWF0IjoxNjg3MzU0NTQwLCJleHAiOjE2ODc0NDA5NDB9.v3wQlCAPDnQ6XeVFSz0Ez8px4nOstUM3sR10cm_oivw"
-		inputPanel.add(tokenField)
-
-		var data: Data
 		val saveButton = JButton("Запуск")
 		saveButton.addActionListener {
 			thread {
-				data = Data(
-					phoneField.text,
-					dateField.text,
-					timeField.text,
-					stopFromField.text,
-					stopToField.text,
-					cityFromField.text,
-					cityToField.text,
-					tokenField.text,
-					timer,
-					checkbox1.isSelected,
-					checkbox2.isSelected
-				)
-				process(data)
+				//process(data)
 			}
 		}
 
-		contentPanel.add(radioPanel, BorderLayout.NORTH)
-		contentPanel.add(inputPanel, BorderLayout.CENTER)
-		contentPanel.add(saveButton, BorderLayout.SOUTH)
+		contentPanel.add(radioPanel)
+		contentPanel.add(checkboxPanel)
+		contentPanel.add(tokenPanel)
+		contentPanel.add(phonePanel)
+		contentPanel.add(datePanel)
+		contentPanel.add(refreshCitiesFromPanel)
+		contentPanel.add(citiesFromPanel)
+		contentPanel.add(refreshCitiesToPanel)
+		contentPanel.add(citiesToPanel)
+		contentPanel.add(refreshTimesPanel)
+		contentPanel.add(timePanel)
+		contentPanel.add(refreshStopsFromPanel)
+		contentPanel.add(stopsFromPanel)
+		contentPanel.add(refreshStopsToPanel)
+		contentPanel.add(stopsToPanel)
+		contentPanel.add(saveButton)
 
 		setLocationRelativeTo(null)
 	}
 
-	private fun process(data: Data) {
-		println("Debug:")
-		println("Phone: ${data.phone}")
-		println("Date: ${data.date}")
-		println("Time: ${data.time}")
-		println("Stop From: ${data.stopFrom}")
-		println("Stop To: ${data.stopTo}")
-		println("City From: ${data.cityFrom}")
-		println("City To: ${data.cityTo}")
-		println("Token: ${data.token}")
-		println("Timer: ${data.timer}")
-		println("Shutdown: ${data.shutdown}")
-		println("Exit: ${data.exit}")
-		if (data.timer) {
-			val scheduler = Executors.newScheduledThreadPool(1)
+	private fun createStopsToPanel(): JPanel {
+		val panel = JPanel()
 
-			val currentTime = System.currentTimeMillis()
-			val targetTime = calculateTargetTime(0, 1, 0)
+		panel.layout = GridLayout(0, 2, 5, 5)
 
-			val timeUntil = targetTime - currentTime
-			if (timeUntil > 0) {
-				val hoursRemaining = timeUntil / 3600000
-				val minutesRemaining = (timeUntil % 3600000) / 60000
-				val secondsRemaining = ((timeUntil % 3600000) % 60000) / 1000
-				println("Time until timer starts: $hoursRemaining hours, $minutesRemaining minutes, $secondsRemaining seconds")
+		val left = JLabel("Остановка прибытия:")
 
-				val task = {
-					orderShuttle(data)
-					scheduler.shutdown()
-				}
-				scheduler.schedule(task, timeUntil, TimeUnit.MINUTES)
-			} else {
-				println("Target time has already passed.")
-			}
-		} else {
-			orderShuttle(data)
-		}
+		stopsToNamesDropdown.isEnabled = false
+		stopsToNamesDropdown.selectedItem = stopsToNames[0]
+
+		panel.add(left)
+		panel.add(stopsToNamesDropdown)
+
+		return panel
 	}
 
-	private fun orderShuttle(data: Data) {
-		loop@ while (true) {
-			try {
-				unlockUserInfo(data)
+	private fun createRefreshStopsToPanel(): JButton {
+		refreshStopsToButton.isEnabled = false
+		refreshStopsToButton.addActionListener {
+			ClientsService.unlock(phone)
 
-				val userInfo = getUserInfo(data)
-				val shouldExecute = getIsTicketNotOrdered(userInfo, data)
+			stopsToNames = TransfersService.getStopsToNames(
+				cache, timesDropdown.getSelectedItemString(), stopsFromNamesDropdown.getSelectedItemString()
+			)
 
-				if (shouldExecute) {
-					val currentTime = LocalTime.now().toString()
-					val bookingsInfo = getBookingsInfo()
-					val bookingIDs = getBookingIDs(bookingsInfo, data)
+			stopsToNamesDropdown.removeAllItems()
+			stopsToNames.forEach { stopsToNamesDropdown.addItem(it) }
 
-					println("[$currentTime] From City ID: " + bookingIDs.first)
-					println("[$currentTime] To City ID: " + bookingIDs.second)
+			stopsToNamesDropdown.selectedItem = stopsToNames[0]
+			stopsToNamesDropdown.isEnabled = true
 
-					val transfersInfo = getTransfersInfo(bookingIDs.first, bookingIDs.second, data)
-					val transferIDs = getTransferIDs(transfersInfo, data)
+			refreshStopsToButton.isEnabled = false
 
-					println("[$currentTime] From Stop ID: ${transferIDs.first}")
-					println("[$currentTime] To Stop ID: ${transferIDs.second}")
-					println("[$currentTime] Time ID: ${transferIDs.third}")
-
-					orderTicket(transferIDs.first, transferIDs.second, transferIDs.third, data)
-
-					println("Retry in 60 seconds!")
-					Thread.sleep(60000)
-				} else {
-					if (data.exit || data.shutdown) {
-						break@loop
-					}
-					JOptionPane.showMessageDialog(
-						this, "Билет заказан.", "Message", JOptionPane.INFORMATION_MESSAGE
-					)
-					break@loop
-				}
-			} catch (e: Exception) {
-				e.printStackTrace()
-			}
+			stopsFromNamesDropdown.isEnabled = false
+			refreshStopsFromButton.isEnabled = false
 		}
-		if (data.shutdown) {
-			try {
-				val processBuilder = ProcessBuilder("rundll32.exe", "powrprof.dll,SetSuspendState", "0,1,0")
-				val process = processBuilder.start()
-				val exitCode = process.waitFor()
-				if (exitCode == 0) {
-					println("Command executed successfully.")
-				} else {
-					println("Command execution failed with exit code: $exitCode")
-				}
-			} catch (e: Exception) {
-				e.printStackTrace()
-			}
-		}
-		if (data.exit) {
-			exitProcess(0)
-		}
+
+		return refreshStopsToButton
 	}
 
-	private fun unlockUserInfo(data: Data) {
-		HttpClients.createDefault().use {
-			val request = HttpOptions("https://api.obs.by/clients/withReservations/${data.phone}")
+	private fun createStopsFromPanel(): JPanel {
+		val panel = JPanel()
 
-			request.addHeader("Access-Control-Request-Headers", "authorization")
-			request.addHeader("Access-Control-Request-Method", "GET")
+		panel.layout = GridLayout(0, 2, 5, 5)
 
-			it.execute(request) { }
-		}
+		val left = JLabel("Остановка отправки:")
+
+		stopsFromNamesDropdown.isEnabled = false
+		stopsFromNamesDropdown.selectedItem = stopsFromNames[0]
+
+		panel.add(left)
+		panel.add(stopsFromNamesDropdown)
+
+		return panel
 	}
 
-	private fun getUserInfo(data: Data): String {
-		HttpClients.createDefault().use {
-			val request = HttpGet("https://api.obs.by/clients/withReservations/${data.phone}")
+	private fun createRefreshStopsFromPanel(): JButton {
+		refreshStopsFromButton.isEnabled = false
+		refreshStopsFromButton.addActionListener {
+			ClientsService.unlock(phone)
 
-			request.addHeader("Authorization", "Bearer ${data.token}")
+			stopsFromNames = TransfersService.getStopsFromNames(
+				cache, timesDropdown.getSelectedItemString()
+			)
 
-			return@getUserInfo it.execute(request) { response ->
-				val entity = response.entity
+			stopsFromNamesDropdown.removeAllItems()
+			stopsFromNames.forEach { stopsFromNamesDropdown.addItem(it) }
 
-				EntityUtils.toString(entity)
-			}
+			stopsFromNamesDropdown.selectedItem = stopsFromNames[0]
+			stopsFromNamesDropdown.isEnabled = true
+
+			refreshStopsFromButton.isEnabled = false
+			refreshStopsToButton.isEnabled = true
+
+			timesDropdown.isEnabled = false
+			refreshTimesFromButton.isEnabled = false
 		}
+
+		return refreshStopsFromButton
 	}
 
-	private fun getBookingsInfo(): String {
-		HttpClients.createDefault().use {
-			val request = HttpGet("https://api.obs.by/cities/forBooking")
+	private fun createTimePanel(): JPanel {
+		val panel = JPanel()
 
-			return@getBookingsInfo it.execute(request) { response ->
-				val entity = response.entity
+		panel.layout = GridLayout(0, 2, 5, 5)
 
-				EntityUtils.toString(entity)
-			}
-		}
+		val left = JLabel("Время отправки:")
+
+		timesDropdown.isEnabled = false
+		timesDropdown.selectedItem = times[0]
+
+		panel.add(left)
+		panel.add(timesDropdown)
+
+		return panel
 	}
 
-	private fun getTransfersInfo(fromCityID: String, toCityID: String, data: Data): String {
-		HttpClients.createDefault().use {
-			val request = HttpPost("https://api.obs.by/transfers/betweenCities")
+	private fun createRefreshTimesFromPanel(): JButton {
+		refreshTimesFromButton.isEnabled = false
+		refreshTimesFromButton.addActionListener {
+			ClientsService.unlock(phone)
 
-			val payload = payloadTransfersInfo(fromCityID, toCityID, data)
-			request.entity = StringEntity(payload, ContentType.APPLICATION_JSON)
+			times = TransfersService.getTimes(
+				cache,
+				phone,
+				date,
+				citiesFromNamesDropdown.getSelectedItemString(),
+				citiesToNamesDropdown.getSelectedItemString()
+			)
 
-			return@getTransfersInfo it.execute(request) { response ->
-				val entity = response.entity
+			timesDropdown.removeAllItems()
+			times.forEach { timesDropdown.addItem(it) }
 
-				EntityUtils.toString(entity)
-			}
+			timesDropdown.selectedItem = times[0]
+			timesDropdown.isEnabled = true
+
+			refreshTimesFromButton.isEnabled = false
+			refreshStopsFromButton.isEnabled = true
+
+			citiesToNamesDropdown.isEnabled = false
 		}
+
+		return refreshTimesFromButton
 	}
 
-	private fun orderTicket(fromStopID: String, toStopID: String, timeID: String, data: Data) {
-		HttpClients.createDefault().use {
-			val request = HttpPost("https://api.obs.by/reservations/book")
-			request.addHeader("Authorization", "Bearer ${data.token}")
+	private fun createCitiesToPanel(): JPanel {
+		val panel = JPanel()
 
-			val payload = payloadOrderTicket(fromStopID, toStopID, timeID, data)
-			request.entity = StringEntity(payload, ContentType.APPLICATION_JSON)
+		panel.layout = GridLayout(0, 2, 5, 5)
 
-			it.execute(request) { }
+		val left = JLabel("Город прибытия:")
+
+		citiesToNamesDropdown.isEnabled = false
+		citiesToNamesDropdown.selectedItem = citiesToNames[0]
+
+		panel.add(left)
+		panel.add(citiesToNamesDropdown)
+
+		return panel
+	}
+
+	private fun createRefreshCitiesToPanel(): JButton {
+		refreshCitiesToButton.isEnabled = false
+		refreshCitiesToButton.addActionListener {
+			ClientsService.unlock(phone)
+
+			citiesToNames = CitiesService.getCitiesToNames(
+				cache, citiesFromNamesDropdown.getSelectedItemString()
+			)
+
+			citiesToNamesDropdown.removeAllItems()
+			citiesToNames.forEach { citiesToNamesDropdown.addItem(it) }
+
+			citiesToNamesDropdown.selectedItem = citiesToNames[0]
+			citiesToNamesDropdown.isEnabled = true
+
+			refreshCitiesToButton.isEnabled = false
+			refreshTimesFromButton.isEnabled = true
+
+			citiesFromNamesDropdown.isEnabled = false
 		}
+
+		return refreshCitiesToButton
+	}
+
+	private fun createCitiesFromPanel(): JPanel {
+		val panel = JPanel()
+
+		panel.layout = GridLayout(0, 2, 5, 5)
+
+		val left = JLabel("Город отправки:")
+
+		citiesFromNamesDropdown.isEnabled = false
+		citiesFromNamesDropdown.selectedItem = citiesFromNames[0]
+
+		panel.add(left)
+		panel.add(citiesFromNamesDropdown)
+
+		return panel
+	}
+
+	private fun createRefreshCitiesFromPanel(): JButton {
+		refreshCitiesFromButton.addActionListener {
+			ClientsService.unlock(phone)
+
+			citiesFromNames = CitiesService.getCitiesFromNames(cache)
+
+			citiesFromNamesDropdown.removeAllItems()
+			citiesFromNames.forEach { citiesFromNamesDropdown.addItem(it) }
+
+			citiesFromNamesDropdown.selectedItem = citiesFromNames[0]
+			citiesFromNamesDropdown.isEnabled = true
+
+			refreshCitiesFromButton.isEnabled = false
+			refreshCitiesToButton.isEnabled = true
+
+			phoneField.isEnabled = false
+			tokenField.isEnabled = false
+			dateField.isEnabled = false
+		}
+
+		return refreshCitiesFromButton
+	}
+
+	private fun createDatePanel(): JPanel {
+		val panel = JPanel()
+		panel.layout = GridLayout(0, 2, 5, 5)
+
+		val left = JLabel("Дата отправки:")
+
+		dateField.text = LocalDate.now().format(formatter)
+		dateField.addCaretListener {
+			date = dateField.text
+		}
+
+		panel.add(left)
+		panel.add(dateField)
+
+		return panel
+	}
+
+	private fun createTokenPanel(): JPanel {
+		val panel = JPanel()
+
+		panel.layout = GridLayout(0, 2, 5, 5)
+
+		val left = JLabel("Токен:")
+
+		tokenField.text =
+			"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJwaG9uZSI6IiszNzUyOTYxODYxODMiLCJyb2xlIjoiY2xpZW50IiwiaWF0IjoxNzI4OTIzMDM0fQ.qfks2dNmBB2XBPkAQMJBDNtePgA_Ci3K2wl5B5MMvYU"
+		tokenField.addCaretListener {
+			token = tokenField.text
+		}
+
+		panel.add(left)
+		panel.add(tokenField)
+
+		return panel
+	}
+
+	private fun createPhonePanel(): JPanel {
+		val panel = JPanel()
+
+		panel.layout = GridLayout(0, 2, 5, 5)
+
+		val left = JLabel("Номер телефона:")
+
+		phoneField.text = "+375296186182"
+		phoneField.addCaretListener {
+			phone = phoneField.text
+		}
+
+		panel.add(left)
+		panel.add(phoneField)
+
+		return panel
+	}
+
+	private fun createCheckboxPanel(): JPanel {
+		val panel = JPanel()
+		panel.layout = GridLayout(0, 2, 5, 5)
+
+		val left = JCheckBox("Гибернация ПК")
+		val right = JCheckBox("Выключение бота")
+
+		left.addActionListener {
+			offPc = left.isSelected
+		}
+		right.addActionListener {
+			offBot = right.isSelected
+		}
+
+		left.isSelected = false
+		right.isSelected = false
+
+		panel.add(left)
+		panel.add(right)
+
+		return panel
+	}
+
+	private fun createRadioPanel(): JPanel {
+		val panel = JPanel()
+
+		panel.layout = GridLayout(0, 2, 5, 5)
+
+		val left = JRadioButton("Таймер (заказ ночью)")
+		val right = JRadioButton("Мониторинг (попытки раз в минуту)")
+
+		left.addActionListener {
+			timerMode = true
+			right.isSelected = false
+		}
+		right.addActionListener {
+			timerMode = false
+			left.isSelected = false
+		}
+
+		left.isSelected = true
+
+		panel.add(left)
+		panel.add(right)
+
+		return panel
 	}
 }
