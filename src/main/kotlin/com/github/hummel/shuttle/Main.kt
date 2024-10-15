@@ -380,7 +380,7 @@ class GUI : JFrame() {
 
 		val left = JLabel("Номер телефона:")
 
-		phoneField.text = "+375296186182"
+		phoneField.text = "+375296186183"
 
 		panel.add(left)
 		panel.add(phoneField)
