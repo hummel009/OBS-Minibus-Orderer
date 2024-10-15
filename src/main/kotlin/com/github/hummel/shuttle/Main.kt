@@ -9,9 +9,11 @@ import com.github.hummel.shuttle.service.TransfersService
 import java.awt.EventQueue
 import java.awt.GridLayout
 import java.time.LocalDate
+import java.time.LocalTime
 import java.time.format.DateTimeFormatter
 import javax.swing.*
 import javax.swing.border.EmptyBorder
+import kotlin.concurrent.thread
 
 val formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd")
 
@@ -55,8 +57,8 @@ class GUI : JFrame() {
 
 	val startButton = JButton("Запуск бота")
 
-	val timeRadioButton = JRadioButton("Таймер (заказ ночью)")
-	val loopRadioButton = JRadioButton("Мониторинг (попытки раз в минуту)")
+	val timeRadioButton = JRadioButton("Таймер")
+	val loopRadioButton = JRadioButton("Мониторинг")
 
 	val shutdownCheckbox = JCheckBox("Гибернация ПК")
 	val exitCheckbox = JCheckBox("Выключение бота")
@@ -112,17 +114,6 @@ class GUI : JFrame() {
 	private fun createStartButton(): JButton {
 		startButton.isEnabled = false
 		startButton.addActionListener {
-			ClientsService.unlock(phoneField.text)
-
-			ReservationsService.postBook(
-				cache,
-				phoneField.text,
-				tokenField.text,
-				timesDropdown.getSelectedItemString(),
-				stopsFromNamesDropdown.getSelectedItemString(),
-				stopsToNamesDropdown.getSelectedItemString()
-			)
-
 			startButton.isEnabled = false
 
 			stopsToNamesDropdown.isEnabled = false
@@ -133,6 +124,43 @@ class GUI : JFrame() {
 
 			shutdownCheckbox.isEnabled = false
 			exitCheckbox.isEnabled = false
+
+			thread {
+				loop@ while (true) {
+					val currentTime = LocalTime.now().toString()
+
+					ClientsService.unlock(phoneField.text)
+
+					val shouldExecute = ClientsService.isTicketNotOrdered(
+						cache,
+						phoneField.text,
+						tokenField.text,
+						dateField.text,
+						timesDropdown.getSelectedItemString(),
+						stopsFromNamesDropdown.getSelectedItemString()
+					)
+
+					if (shouldExecute) {
+						ReservationsService.postBook(
+							cache,
+							phoneField.text,
+							tokenField.text,
+							timesDropdown.getSelectedItemString(),
+							stopsFromNamesDropdown.getSelectedItemString(),
+							stopsToNamesDropdown.getSelectedItemString()
+						)
+
+						println("[$currentTime] One more attempt in 60 seconds.")
+
+						Thread.sleep(60000)
+					} else {
+
+						println("[$currentTime] The ticket was ordered.")
+
+						break@loop
+					}
+				}
+			}
 		}
 
 		return startButton
