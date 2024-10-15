@@ -11,7 +11,6 @@ import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 import javax.swing.*
 import javax.swing.border.EmptyBorder
-import kotlin.concurrent.thread
 
 val formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd")
 
@@ -53,13 +52,13 @@ class GUI : JFrame() {
 	val refreshStopsFromButton = JButton("Обновить список остановок отправки")
 	val refreshStopsToButton = JButton("Обновить список остановок прибытия")
 
-	var offPc = false
-	var offBot = false
-	var timerMode = true
-	var date = LocalDate.now().format(formatter)
-	var phone = "+375296186183"
-	var token =
-		"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJwaG9uZSI6IiszNzUyOTYxODYxODMiLCJyb2xlIjoiY2xpZW50IiwiaWF0IjoxNzI4OTIzMDM0fQ.qfks2dNmBB2XBPkAQMJBDNtePgA_Ci3K2wl5B5MMvYU"
+	val startButton = JButton("Запуск бота")
+
+	val timeRadioButton = JRadioButton("Таймер (заказ ночью)")
+	val loopRadioButton = JRadioButton("Мониторинг (попытки раз в минуту)")
+
+	val shutdownCheckbox = JCheckBox("Гибернация ПК")
+	val exitCheckbox = JCheckBox("Выключение бота")
 
 	init {
 		title = "Hummel009's Shuttle Bot"
@@ -76,43 +75,57 @@ class GUI : JFrame() {
 		val checkboxPanel = createCheckboxPanel()
 		val tokenPanel = createTokenPanel()
 		val phonePanel = createPhonePanel()
-		val refreshCitiesFromPanel = createRefreshCitiesFromPanel()
+		val refreshCitiesFromButton = createRefreshCitiesFromButton()
 		val citiesFromPanel = createCitiesFromPanel()
-		val refreshCitiesToPanel = createRefreshCitiesToPanel()
+		val refreshCitiesToButton = createRefreshCitiesToButton()
 		val citiesToPanel = createCitiesToPanel()
 		val datePanel = createDatePanel()
-		val refreshTimesPanel = createRefreshTimesFromPanel()
+		val refreshTimesButton = createRefreshTimesFromButton()
 		val timePanel = createTimePanel()
-		val refreshStopsFromPanel = createRefreshStopsFromPanel()
+		val refreshStopsFromButton = createRefreshStopsFromButton()
 		val stopsFromPanel = createStopsFromPanel()
-		val refreshStopsToPanel = createRefreshStopsToPanel()
+		val refreshStopsToButton = createRefreshStopsToButton()
 		val stopsToPanel = createStopsToPanel()
-
-		val saveButton = JButton("Запуск")
-		saveButton.addActionListener {
-			thread {
-				//process(data)
-			}
-		}
+		val startButton = createStartButton()
 
 		contentPanel.add(radioPanel)
 		contentPanel.add(checkboxPanel)
 		contentPanel.add(tokenPanel)
 		contentPanel.add(phonePanel)
 		contentPanel.add(datePanel)
-		contentPanel.add(refreshCitiesFromPanel)
+		contentPanel.add(refreshCitiesFromButton)
 		contentPanel.add(citiesFromPanel)
-		contentPanel.add(refreshCitiesToPanel)
+		contentPanel.add(refreshCitiesToButton)
 		contentPanel.add(citiesToPanel)
-		contentPanel.add(refreshTimesPanel)
+		contentPanel.add(refreshTimesButton)
 		contentPanel.add(timePanel)
-		contentPanel.add(refreshStopsFromPanel)
+		contentPanel.add(refreshStopsFromButton)
 		contentPanel.add(stopsFromPanel)
-		contentPanel.add(refreshStopsToPanel)
+		contentPanel.add(refreshStopsToButton)
 		contentPanel.add(stopsToPanel)
-		contentPanel.add(saveButton)
+		contentPanel.add(startButton)
 
 		setLocationRelativeTo(null)
+	}
+
+	private fun createStartButton(): JButton {
+		startButton.isEnabled = false
+		startButton.addActionListener {
+			ClientsService.unlock(phoneField.text)
+
+			startButton.isEnabled = false
+
+			stopsToNamesDropdown.isEnabled = false
+			startButton.isEnabled = false
+
+			timeRadioButton.isEnabled = false
+			loopRadioButton.isEnabled = false
+
+			shutdownCheckbox.isEnabled = false
+			exitCheckbox.isEnabled = false
+		}
+
+		return startButton
 	}
 
 	private fun createStopsToPanel(): JPanel {
@@ -131,10 +144,10 @@ class GUI : JFrame() {
 		return panel
 	}
 
-	private fun createRefreshStopsToPanel(): JButton {
+	private fun createRefreshStopsToButton(): JButton {
 		refreshStopsToButton.isEnabled = false
 		refreshStopsToButton.addActionListener {
-			ClientsService.unlock(phone)
+			ClientsService.unlock(phoneField.text)
 
 			stopsToNames = TransfersService.getStopsToNames(
 				cache, timesDropdown.getSelectedItemString(), stopsFromNamesDropdown.getSelectedItemString()
@@ -147,6 +160,7 @@ class GUI : JFrame() {
 			stopsToNamesDropdown.isEnabled = true
 
 			refreshStopsToButton.isEnabled = false
+			startButton.isEnabled = true
 
 			stopsFromNamesDropdown.isEnabled = false
 			refreshStopsFromButton.isEnabled = false
@@ -171,10 +185,10 @@ class GUI : JFrame() {
 		return panel
 	}
 
-	private fun createRefreshStopsFromPanel(): JButton {
+	private fun createRefreshStopsFromButton(): JButton {
 		refreshStopsFromButton.isEnabled = false
 		refreshStopsFromButton.addActionListener {
-			ClientsService.unlock(phone)
+			ClientsService.unlock(phoneField.text)
 
 			stopsFromNames = TransfersService.getStopsFromNames(
 				cache, timesDropdown.getSelectedItemString()
@@ -212,15 +226,15 @@ class GUI : JFrame() {
 		return panel
 	}
 
-	private fun createRefreshTimesFromPanel(): JButton {
+	private fun createRefreshTimesFromButton(): JButton {
 		refreshTimesFromButton.isEnabled = false
 		refreshTimesFromButton.addActionListener {
-			ClientsService.unlock(phone)
+			ClientsService.unlock(phoneField.text)
 
 			times = TransfersService.getTimes(
 				cache,
-				phone,
-				date,
+				phoneField.text,
+				dateField.text,
 				citiesFromNamesDropdown.getSelectedItemString(),
 				citiesToNamesDropdown.getSelectedItemString()
 			)
@@ -256,10 +270,10 @@ class GUI : JFrame() {
 		return panel
 	}
 
-	private fun createRefreshCitiesToPanel(): JButton {
+	private fun createRefreshCitiesToButton(): JButton {
 		refreshCitiesToButton.isEnabled = false
 		refreshCitiesToButton.addActionListener {
-			ClientsService.unlock(phone)
+			ClientsService.unlock(phoneField.text)
 
 			citiesToNames = CitiesService.getCitiesToNames(
 				cache, citiesFromNamesDropdown.getSelectedItemString()
@@ -296,9 +310,9 @@ class GUI : JFrame() {
 		return panel
 	}
 
-	private fun createRefreshCitiesFromPanel(): JButton {
+	private fun createRefreshCitiesFromButton(): JButton {
 		refreshCitiesFromButton.addActionListener {
-			ClientsService.unlock(phone)
+			ClientsService.unlock(phoneField.text)
 
 			citiesFromNames = CitiesService.getCitiesFromNames(cache)
 
@@ -326,9 +340,6 @@ class GUI : JFrame() {
 		val left = JLabel("Дата отправки:")
 
 		dateField.text = LocalDate.now().format(formatter)
-		dateField.addCaretListener {
-			date = dateField.text
-		}
 
 		panel.add(left)
 		panel.add(dateField)
@@ -345,9 +356,6 @@ class GUI : JFrame() {
 
 		tokenField.text =
 			"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJwaG9uZSI6IiszNzUyOTYxODYxODMiLCJyb2xlIjoiY2xpZW50IiwiaWF0IjoxNzI4OTIzMDM0fQ.qfks2dNmBB2XBPkAQMJBDNtePgA_Ci3K2wl5B5MMvYU"
-		tokenField.addCaretListener {
-			token = tokenField.text
-		}
 
 		panel.add(left)
 		panel.add(tokenField)
@@ -363,9 +371,6 @@ class GUI : JFrame() {
 		val left = JLabel("Номер телефона:")
 
 		phoneField.text = "+375296186182"
-		phoneField.addCaretListener {
-			phone = phoneField.text
-		}
 
 		panel.add(left)
 		panel.add(phoneField)
@@ -375,23 +380,14 @@ class GUI : JFrame() {
 
 	private fun createCheckboxPanel(): JPanel {
 		val panel = JPanel()
+
 		panel.layout = GridLayout(0, 2, 5, 5)
 
-		val left = JCheckBox("Гибернация ПК")
-		val right = JCheckBox("Выключение бота")
+		shutdownCheckbox.isSelected = false
+		exitCheckbox.isSelected = false
 
-		left.addActionListener {
-			offPc = left.isSelected
-		}
-		right.addActionListener {
-			offBot = right.isSelected
-		}
-
-		left.isSelected = false
-		right.isSelected = false
-
-		panel.add(left)
-		panel.add(right)
+		panel.add(shutdownCheckbox)
+		panel.add(exitCheckbox)
 
 		return panel
 	}
@@ -401,22 +397,17 @@ class GUI : JFrame() {
 
 		panel.layout = GridLayout(0, 2, 5, 5)
 
-		val left = JRadioButton("Таймер (заказ ночью)")
-		val right = JRadioButton("Мониторинг (попытки раз в минуту)")
-
-		left.addActionListener {
-			timerMode = true
-			right.isSelected = false
+		timeRadioButton.addActionListener {
+			loopRadioButton.isSelected = false
 		}
-		right.addActionListener {
-			timerMode = false
-			left.isSelected = false
+		loopRadioButton.addActionListener {
+			timeRadioButton.isSelected = false
 		}
 
-		left.isSelected = true
+		timeRadioButton.isSelected = true
 
-		panel.add(left)
-		panel.add(right)
+		panel.add(timeRadioButton)
+		panel.add(loopRadioButton)
 
 		return panel
 	}
