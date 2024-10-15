@@ -8,15 +8,17 @@ object ReservationsService {
 	fun postBook(cache: Cache, phone: String, token: String, time: String, stopFromName: String, stopToName: String) {
 		val transferInfo = cache.transfersInfo.find {
 			it.from.time == time
-		}!!.stopsForBooking.find {
+		}!!
+		val transferId = transferInfo.id
+
+		val stopInfo = transferInfo.stopsForBooking.find {
 			it.from.name == stopFromName
 		}!!
-
-		val stopFromId = transferInfo.from.id
-		val stopToId = transferInfo.to.find {
+		val stopFromId = stopInfo.from.id
+		val stopToId = stopInfo.to.find {
 			it.name == stopToName
 		}!!.id
 
-		ReservationsDao.postBook(phone, token, time, stopFromId, stopToId)
+		ReservationsDao.postBook(phone, token, transferId, stopFromId, stopToId)
 	}
 }
