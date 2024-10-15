@@ -9,11 +9,11 @@ import com.github.hummel.shuttle.service.TransfersService
 import java.awt.EventQueue
 import java.awt.GridLayout
 import java.time.LocalDate
-import java.time.LocalTime
 import java.time.format.DateTimeFormatter
 import javax.swing.*
 import javax.swing.border.EmptyBorder
 import kotlin.concurrent.thread
+import kotlin.system.exitProcess
 
 val formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd")
 
@@ -127,7 +127,10 @@ class GUI : JFrame() {
 
 			thread {
 				loop@ while (true) {
-					val currentTime = LocalTime.now().toString()
+					val currentTime = System.currentTimeMillis()
+					val minutes = (currentTime / (1000 * 60)) % 60
+					val hours = (currentTime / (1000 * 60 * 60)) % 24
+					val time = "%02d:%02d".format(hours, minutes)
 
 					ClientsService.unlock(phoneField.text)
 
@@ -150,15 +153,34 @@ class GUI : JFrame() {
 							stopsToNamesDropdown.getSelectedItemString()
 						)
 
-						println("[$currentTime] One more attempt in 60 seconds.")
-
 						Thread.sleep(60000)
 					} else {
-
-						println("[$currentTime] The ticket was ordered.")
-
+						if (!exitCheckbox.isSelected && !shutdownCheckbox.isSelected) {
+							JOptionPane.showMessageDialog(
+								this, "[$time] Билет заказан.", "Message", JOptionPane.INFORMATION_MESSAGE
+							)
+						}
 						break@loop
 					}
+				}
+			}
+
+			if (exitCheckbox.isSelected) {
+				exitProcess(0)
+			}
+
+			if (shutdownCheckbox.isSelected) {
+				try {
+					val processBuilder = ProcessBuilder("rundll32.exe", "powrprof.dll,SetSuspendState", "0,1,0")
+					val process = processBuilder.start()
+					val exitCode = process.waitFor()
+					if (exitCode == 0) {
+						println("Command executed successfully.")
+					} else {
+						println("Command execution failed with exit code: $exitCode")
+					}
+				} catch (e: Exception) {
+					e.printStackTrace()
 				}
 			}
 		}
