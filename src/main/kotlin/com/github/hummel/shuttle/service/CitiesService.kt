@@ -12,6 +12,10 @@ object CitiesService {
 				it.from.name
 			}.toTypedArray()
 
+			if (citiesFromNames.isEmpty()) {
+				throw Exception()
+			}
+
 			citiesFromNames.sort()
 
 			citiesFromNames
@@ -29,6 +33,10 @@ object CitiesService {
 			}!!.to.map {
 				it.name
 			}.toTypedArray()
+
+			if (citiesToNames.isEmpty()) {
+				throw Exception()
+			}
 
 			citiesToNames.sort()
 

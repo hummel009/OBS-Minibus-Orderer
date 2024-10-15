@@ -2,6 +2,8 @@ package com.github.hummel.shuttle.service
 
 import com.github.hummel.shuttle.Cache
 import com.github.hummel.shuttle.dao.TransfersDao
+import com.github.hummel.shuttle.formatter
+import java.time.LocalDate
 
 object TransfersService {
 	fun getTimes(cache: Cache, phone: String, date: String, cityFromName: String, cityToName: String): Array<String> {
@@ -13,15 +15,36 @@ object TransfersService {
 			it.name == cityToName
 		}!!.id
 
-		cache.transfersInfo = TransfersDao.getBetweenCities(phone, date, cityFromId, cityToId)
+		return try {
+			cache.transfersInfo = TransfersDao.getBetweenCities(phone, date, cityFromId, cityToId)
 
-		val times = cache.transfersInfo.map {
-			it.from.time
-		}.toTypedArray()
+			val times = cache.transfersInfo.map {
+				it.from.time
+			}.toTypedArray()
 
-		times.sort()
+			if (times.isEmpty()) {
+				throw Exception()
+			}
 
-		return times
+			times.sort()
+
+			times
+		} catch (_: Exception) {
+			println("Расписание на эту дату недоступно. Загружены псевдо-данные завтрашнего дня.")
+
+			val pseudoDate = LocalDate.now().plusDays(1).format(formatter)
+
+			cache.transfersInfo = TransfersDao.getBetweenCities(phone, pseudoDate, cityFromId, cityToId)
+			cache.transfersInfoPseudo = true
+
+			val times = cache.transfersInfo.map {
+				it.from.time
+			}.toTypedArray()
+
+			times.sort()
+
+			times
+		}
 	}
 
 	fun getStopsFromNames(cache: Cache, time: String): Array<String> {

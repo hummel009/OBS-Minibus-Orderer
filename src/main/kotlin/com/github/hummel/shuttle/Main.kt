@@ -140,6 +140,9 @@ class GUI : JFrame() {
 							cache,
 							phoneField.text,
 							tokenField.text,
+							dateField.text,
+							citiesFromNamesDropdown.getSelectedItemString(),
+							citiesToNamesDropdown.getSelectedItemString(),
 							timesDropdown.getSelectedItemString(),
 							stopsFromNamesDropdown.getSelectedItemString(),
 							stopsToNamesDropdown.getSelectedItemString()
