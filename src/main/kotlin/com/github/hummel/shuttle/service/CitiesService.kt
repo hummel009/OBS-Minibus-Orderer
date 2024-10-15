@@ -5,26 +5,38 @@ import com.github.hummel.shuttle.dao.CitiesDao
 
 object CitiesService {
 	fun getCitiesFromNames(cache: Cache): Array<String> {
-		cache.citiesInfo = CitiesDao.getForBooking()
+		return try {
+			cache.citiesInfo = CitiesDao.getForBooking()
 
-		val citiesFromNames = cache.citiesInfo.map {
-			it.from.name
-		}.toTypedArray()
+			val citiesFromNames = cache.citiesInfo.map {
+				it.from.name
+			}.toTypedArray()
 
-		citiesFromNames.sort()
+			citiesFromNames.sort()
 
-		return citiesFromNames
+			citiesFromNames
+		} catch (e: Exception) {
+			e.printStackTrace()
+
+			arrayOf("Минск", "Логойск")
+		}
 	}
 
 	fun getCitiesToNames(cache: Cache, cityFromName: String): Array<String> {
-		val citiesToNames = cache.citiesInfo.find {
-			it.from.name == cityFromName
-		}!!.to.map {
-			it.name
-		}.toTypedArray()
+		return try {
+			val citiesToNames = cache.citiesInfo.find {
+				it.from.name == cityFromName
+			}!!.to.map {
+				it.name
+			}.toTypedArray()
 
-		citiesToNames.sort()
+			citiesToNames.sort()
 
-		return citiesToNames
+			citiesToNames
+		} catch (e: Exception) {
+			e.printStackTrace()
+
+			arrayOf("Минск", "Логойск")
+		}
 	}
 }

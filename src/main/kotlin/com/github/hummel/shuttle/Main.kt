@@ -57,9 +57,6 @@ class GUI : JFrame() {
 
 	val startButton = JButton("Запуск бота")
 
-	val timeRadioButton = JRadioButton("Таймер")
-	val loopRadioButton = JRadioButton("Мониторинг")
-
 	val shutdownCheckbox = JCheckBox("Гибернация ПК")
 	val exitCheckbox = JCheckBox("Выключение бота")
 
@@ -74,7 +71,6 @@ class GUI : JFrame() {
 		contentPanel.layout = GridLayout(0, 1, 0, 0)
 		contentPane = contentPanel
 
-		val radioPanel = createRadioPanel()
 		val checkboxPanel = createCheckboxPanel()
 		val tokenPanel = createTokenPanel()
 		val phonePanel = createPhonePanel()
@@ -91,7 +87,6 @@ class GUI : JFrame() {
 		val stopsToPanel = createStopsToPanel()
 		val startButton = createStartButton()
 
-		contentPanel.add(radioPanel)
 		contentPanel.add(checkboxPanel)
 		contentPanel.add(tokenPanel)
 		contentPanel.add(phonePanel)
@@ -118,9 +113,6 @@ class GUI : JFrame() {
 
 			stopsToNamesDropdown.isEnabled = false
 			startButton.isEnabled = false
-
-			timeRadioButton.isEnabled = false
-			loopRadioButton.isEnabled = false
 
 			shutdownCheckbox.isEnabled = false
 			exitCheckbox.isEnabled = false
@@ -153,8 +145,12 @@ class GUI : JFrame() {
 							stopsToNamesDropdown.getSelectedItemString()
 						)
 
+						println("[$time] Попытка завершена. Следующая попытка через 60 секунд.")
+
 						Thread.sleep(60000)
 					} else {
+						println("[$time] Билет заказан.")
+
 						if (!exitCheckbox.isSelected && !shutdownCheckbox.isSelected) {
 							JOptionPane.showMessageDialog(
 								this, "[$time] Билет заказан.", "Message", JOptionPane.INFORMATION_MESSAGE
@@ -448,26 +444,6 @@ class GUI : JFrame() {
 
 		panel.add(shutdownCheckbox)
 		panel.add(exitCheckbox)
-
-		return panel
-	}
-
-	private fun createRadioPanel(): JPanel {
-		val panel = JPanel()
-
-		panel.layout = GridLayout(0, 2, 5, 5)
-
-		timeRadioButton.addActionListener {
-			loopRadioButton.isSelected = false
-		}
-		loopRadioButton.addActionListener {
-			timeRadioButton.isSelected = false
-		}
-
-		timeRadioButton.isSelected = true
-
-		panel.add(timeRadioButton)
-		panel.add(loopRadioButton)
 
 		return panel
 	}
