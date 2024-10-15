@@ -7,24 +7,24 @@ object CitiesService {
 	fun getCitiesFromNames(cache: Cache): Array<String> {
 		cache.citiesInfo = CitiesDao.getForBooking()
 
-		val citiesNames = cache.citiesInfo.map {
+		val citiesFromNames = cache.citiesInfo.map {
 			it.from.name
 		}.toTypedArray()
 
-		citiesNames.sort()
+		citiesFromNames.sort()
 
-		return citiesNames
+		return citiesFromNames
 	}
 
 	fun getCitiesToNames(cache: Cache, cityFromName: String): Array<String> {
-		val citiesNames = cache.citiesInfo.find {
+		val citiesToNames = cache.citiesInfo.find {
 			it.from.name == cityFromName
 		}!!.to.map {
 			it.name
 		}.toTypedArray()
 
-		citiesNames.sort()
+		citiesToNames.sort()
 
-		return citiesNames
+		return citiesToNames
 	}
 }

@@ -3,7 +3,6 @@ package com.github.hummel.shuttle.dao
 import org.apache.hc.client5.http.classic.methods.HttpPost
 import org.apache.hc.client5.http.impl.classic.HttpClients
 import org.apache.hc.core5.http.ContentType
-import org.apache.hc.core5.http.io.entity.EntityUtils
 import org.apache.hc.core5.http.io.entity.StringEntity
 
 object ReservationsDao {
@@ -28,11 +27,7 @@ object ReservationsDao {
 			request.addHeader("Authorization", "Bearer $token")
 			request.entity = StringEntity(payload, ContentType.APPLICATION_JSON)
 
-			it.execute(request) { response ->
-				val entity = response.entity
-
-				val response = EntityUtils.toString(entity)
-			}
+			it.execute(request) {}
 		}
 	}
 }

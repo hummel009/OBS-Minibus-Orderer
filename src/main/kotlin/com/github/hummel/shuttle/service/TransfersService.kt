@@ -15,13 +15,13 @@ object TransfersService {
 
 		cache.transfersInfo = TransfersDao.getBetweenCities(phone, date, cityFromId, cityToId)
 
-		val stopsTimes = cache.transfersInfo.map {
+		val times = cache.transfersInfo.map {
 			it.from.time
 		}.toTypedArray()
 
-		stopsTimes.sort()
+		times.sort()
 
-		return stopsTimes
+		return times
 	}
 
 	fun getStopsFromNames(cache: Cache, time: String): Array<String> {

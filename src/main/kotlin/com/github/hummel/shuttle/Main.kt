@@ -349,7 +349,7 @@ class GUI : JFrame() {
 
 		val left = JLabel("Дата отправки:")
 
-		dateField.text = LocalDate.now().plusDays(2).format(formatter)
+		dateField.text = LocalDate.now().format(formatter)
 
 		panel.add(left)
 		panel.add(dateField)

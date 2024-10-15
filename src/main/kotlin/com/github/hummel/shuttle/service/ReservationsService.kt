@@ -11,11 +11,11 @@ object ReservationsService {
 		}!!
 		val transferId = transferInfo.id
 
-		val stopInfo = transferInfo.stopsForBooking.find {
+		val stopForBooking = transferInfo.stopsForBooking.find {
 			it.from.name == stopFromName
 		}!!
-		val stopFromId = stopInfo.from.id
-		val stopToId = stopInfo.to.find {
+		val stopFromId = stopForBooking.from.id
+		val stopToId = stopForBooking.to.find {
 			it.name == stopToName
 		}!!.id
 
