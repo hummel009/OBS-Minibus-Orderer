@@ -6,15 +6,15 @@ import org.apache.hc.core5.http.ContentType
 import org.apache.hc.core5.http.io.entity.StringEntity
 
 object ReservationsDao {
-	fun postBook(phone: String, token: String, fromStopId: String, toStopId: String, timeId: String) {
+	fun postBook(phone: String, token: String, time: String, stopFromId: String, stopToId: String) {
 		HttpClients.createDefault().use {
 			val request = HttpPost("https://api.obs.by/reservations/book")
 			val payload = """
 			{
 				"client": "$phone",
-				"transfer": "$timeId",
-				"from": "$fromStopId",
-				"to": "$toStopId",
+				"transfer": "$time",
+				"from": "$stopFromId",
+				"to": "$stopToId",
 				"amount": 1,
 				"info": "",
 				"createdBy": {

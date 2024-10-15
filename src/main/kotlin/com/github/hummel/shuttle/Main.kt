@@ -4,6 +4,7 @@ import com.formdev.flatlaf.FlatLightLaf
 import com.formdev.flatlaf.intellijthemes.materialthemeuilite.FlatGitHubDarkIJTheme
 import com.github.hummel.shuttle.service.CitiesService
 import com.github.hummel.shuttle.service.ClientsService
+import com.github.hummel.shuttle.service.ReservationsService
 import com.github.hummel.shuttle.service.TransfersService
 import java.awt.EventQueue
 import java.awt.GridLayout
@@ -112,6 +113,15 @@ class GUI : JFrame() {
 		startButton.isEnabled = false
 		startButton.addActionListener {
 			ClientsService.unlock(phoneField.text)
+
+			ReservationsService.postBook(
+				cache,
+				phoneField.text,
+				tokenField.text,
+				timesDropdown.getSelectedItemString(),
+				stopsFromNamesDropdown.getSelectedItemString(),
+				stopsToNamesDropdown.getSelectedItemString()
+			)
 
 			startButton.isEnabled = false
 
