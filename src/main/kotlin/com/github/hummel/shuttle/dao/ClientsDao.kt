@@ -28,9 +28,9 @@ object ClientsDao {
 			return@getWithReservations it.execute(request) { response ->
 				val entity = response.entity
 
-				val response = EntityUtils.toString(entity)
+				val stringResponse = EntityUtils.toString(entity)
 
-				Gson().fromJson(response, ClientInfo::class.java)
+				Gson().fromJson(stringResponse, ClientInfo::class.java)
 			}
 		}
 	}

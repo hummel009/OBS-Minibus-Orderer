@@ -7,11 +7,11 @@ import java.time.LocalDate
 
 object TransfersService {
 	fun getTimes(cache: Cache, phone: String, date: String, cityFromName: String, cityToName: String): Array<String> {
-		var cityInfo = cache.citiesInfo.find {
+		val cityInfo = cache.citiesInfo.find {
 			it.from.name == cityFromName
 		}!!
-		var cityFromId = cityInfo.from.id
-		var cityToId = cityInfo.to.find {
+		val cityFromId = cityInfo.from.id
+		val cityToId = cityInfo.to.find {
 			it.name == cityToName
 		}!!.id
 

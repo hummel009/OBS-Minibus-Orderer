@@ -26,9 +26,9 @@ object TransfersDao {
 			return@getBetweenCities it.execute(request) { response ->
 				val entity = response.entity
 
-				val response = EntityUtils.toString(entity)
+				val stringResponse = EntityUtils.toString(entity)
 
-				Gson().fromJson(response, Array<TransfersInfo>::class.java)
+				Gson().fromJson(stringResponse, Array<TransfersInfo>::class.java)
 			}
 		}
 	}
