@@ -49,7 +49,7 @@ class GUI : JFrame() {
 	private val tokenField = JTextField(20)
 	private val dateField = JTextField(20)
 
-	private val refreshCitiesFromButton = JButton("Обновить список городов")
+	private val refreshCitiesFromButton = JButton("Обновить список городов отправки")
 	private val refreshCitiesToButton = JButton("Обновить список городов прибытия")
 	private val refreshTimesFromButton = JButton("Обновить доступные времена отправки")
 	private val refreshStopsFromButton = JButton("Обновить список остановок отправки")
