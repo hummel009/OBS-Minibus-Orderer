@@ -119,7 +119,7 @@ class GUI : JFrame() {
 			shutdownCheckbox.isEnabled = false
 			exitCheckbox.isEnabled = false
 
-			val pause = 10
+			val pause = 60
 
 			thread {
 				loop@ while (true) {
