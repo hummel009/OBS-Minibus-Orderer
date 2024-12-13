@@ -129,14 +129,14 @@ class GUI : JFrame() {
 					ClientsService.unlock(phoneField.text)
 
 					val notOrdered = ClientsService.isTicketNotOrdered(
-						cache,
-						phoneField.text,
-						tokenField.text,
-						dateField.text,
-						citiesFromNamesDropdown.getSelectedItemString(),
-						citiesToNamesDropdown.getSelectedItemString(),
-						timesDropdown.getSelectedItemString(),
-						stopsFromNamesDropdown.getSelectedItemString()
+						cache = cache,
+						phone = phoneField.text,
+						token = tokenField.text,
+						date = dateField.text,
+						cityFromName = citiesFromNamesDropdown.getSelectedItemString(),
+						cityToName = citiesToNamesDropdown.getSelectedItemString(),
+						time = timesDropdown.getSelectedItemString(),
+						stopFromName = stopsFromNamesDropdown.getSelectedItemString()
 					)
 
 					if (cache.transfersInfoPseudo) {
@@ -149,12 +149,12 @@ class GUI : JFrame() {
 
 					if (notOrdered) {
 						ReservationsService.postBook(
-							cache,
-							phoneField.text,
-							tokenField.text,
-							timesDropdown.getSelectedItemString(),
-							stopsFromNamesDropdown.getSelectedItemString(),
-							stopsToNamesDropdown.getSelectedItemString()
+							cache = cache,
+							phone = phoneField.text,
+							token = tokenField.text,
+							time = timesDropdown.getSelectedItemString(),
+							stopFromName = stopsFromNamesDropdown.getSelectedItemString(),
+							stopToName = stopsToNamesDropdown.getSelectedItemString()
 						)
 
 						println("[$time] Попытка завершена. Следующая попытка через $pause секунд.")
@@ -218,7 +218,9 @@ class GUI : JFrame() {
 		refreshStopsToButton.isEnabled = false
 		refreshStopsToButton.addActionListener {
 			stopsToNames = TransfersService.getStopsToNames(
-				cache, timesDropdown.getSelectedItemString(), stopsFromNamesDropdown.getSelectedItemString()
+				cache = cache,
+				time = timesDropdown.getSelectedItemString(),
+				stopFromName = stopsFromNamesDropdown.getSelectedItemString()
 			)
 
 			stopsToNamesDropdown.removeAllItems()
@@ -257,7 +259,7 @@ class GUI : JFrame() {
 		refreshStopsFromButton.isEnabled = false
 		refreshStopsFromButton.addActionListener {
 			stopsFromNames = TransfersService.getStopsFromNames(
-				cache, timesDropdown.getSelectedItemString()
+				cache = cache, time = timesDropdown.getSelectedItemString()
 			)
 
 			stopsFromNamesDropdown.removeAllItems()
@@ -296,11 +298,11 @@ class GUI : JFrame() {
 		refreshTimesFromButton.isEnabled = false
 		refreshTimesFromButton.addActionListener {
 			times = TransfersService.getTimes(
-				cache,
-				phoneField.text,
-				dateField.text,
-				citiesFromNamesDropdown.getSelectedItemString(),
-				citiesToNamesDropdown.getSelectedItemString()
+				cache = cache,
+				phone = phoneField.text,
+				date = dateField.text,
+				cityFromName = citiesFromNamesDropdown.getSelectedItemString(),
+				cityToName = citiesToNamesDropdown.getSelectedItemString()
 			)
 
 			timesDropdown.removeAllItems()
@@ -338,7 +340,7 @@ class GUI : JFrame() {
 		refreshCitiesToButton.isEnabled = false
 		refreshCitiesToButton.addActionListener {
 			citiesToNames = CitiesService.getCitiesToNames(
-				cache, citiesFromNamesDropdown.getSelectedItemString()
+				cache = cache, cityFromName = citiesFromNamesDropdown.getSelectedItemString()
 			)
 
 			citiesToNamesDropdown.removeAllItems()
