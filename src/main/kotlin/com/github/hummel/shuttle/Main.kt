@@ -119,6 +119,8 @@ class GUI : JFrame() {
 			shutdownCheckbox.isEnabled = false
 			exitCheckbox.isEnabled = false
 
+			val pause = 10
+
 			thread {
 				loop@ while (true) {
 					val currentTime = LocalTime.now(ZoneId.systemDefault())
@@ -138,9 +140,9 @@ class GUI : JFrame() {
 					)
 
 					if (cache.transfersInfoPseudo) {
-						println("[$time] Расписание не открыто. Следующая попытка через 60 секунд.")
+						println("[$time] Расписание не открыто. Следующая попытка через $pause секунд.")
 
-						Thread.sleep(60000)
+						Thread.sleep(pause * 1000L)
 
 						continue@loop
 					}
@@ -155,9 +157,9 @@ class GUI : JFrame() {
 							stopsToNamesDropdown.getSelectedItemString()
 						)
 
-						println("[$time] Попытка завершена. Следующая попытка через 60 секунд.")
+						println("[$time] Попытка завершена. Следующая попытка через $pause секунд.")
 
-						Thread.sleep(60000)
+						Thread.sleep(pause * 1000L)
 
 						continue@loop
 					}
