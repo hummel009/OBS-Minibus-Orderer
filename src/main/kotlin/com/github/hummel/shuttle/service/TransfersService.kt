@@ -6,14 +6,10 @@ import com.github.hummel.shuttle.formatter
 import java.time.LocalDate
 
 object TransfersService {
-	fun getTimes(cache: Cache, phone: String, date: String, cityFromName: String, cityToName: String): Array<String> {
-		val cityInfo = cache.citiesInfo.find {
-			it.from.name == cityFromName
-		}!!
-		val cityFromId = cityInfo.from.id
-		val cityToId = cityInfo.to.find {
-			it.name == cityToName
-		}!!.id
+	fun getTimes(
+		cache: Cache, phone: String, date: String, cityFromName: String, cityToName: String
+	): Array<String> {
+		val (cityFromId, cityToId) = CitiesService.getCityIdsByNames(cache, cityFromName, cityToName)
 
 		return try {
 			cache.transfersInfo = TransfersDao.getBetweenCities(phone, date, cityFromId, cityToId)
@@ -28,7 +24,7 @@ object TransfersService {
 
 			times.sortedArray()
 		} catch (_: Exception) {
-			println("Расписание на эту дату недоступно. Загружены псевдо-данные завтрашнего дня.")
+			println("Расписание на эту дату недоступно. Загружены псевдо-данные (завтрашний день).")
 
 			val pseudoDate = LocalDate.now().plusDays(1).format(formatter)
 
@@ -43,7 +39,9 @@ object TransfersService {
 		}
 	}
 
-	fun getStopsFromNames(cache: Cache, time: String): Array<String> {
+	fun getStopsFromNames(
+		cache: Cache, time: String
+	): Array<String> {
 		val stopsFromNames = cache.transfersInfo.find {
 			it.from.time == time
 		}!!.stopsForBooking.map {
@@ -53,7 +51,9 @@ object TransfersService {
 		return stopsFromNames
 	}
 
-	fun getStopsToNames(cache: Cache, time: String, stopFromName: String): Array<String> {
+	fun getStopsToNames(
+		cache: Cache, time: String, stopFromName: String
+	): Array<String> {
 		val stopsToNames = cache.transfersInfo.find {
 			it.from.time == time
 		}!!.stopsForBooking.find {

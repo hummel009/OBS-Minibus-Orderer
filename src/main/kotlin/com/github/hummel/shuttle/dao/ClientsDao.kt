@@ -8,7 +8,9 @@ import org.apache.hc.client5.http.impl.classic.HttpClients
 import org.apache.hc.core5.http.io.entity.EntityUtils
 
 object ClientsDao {
-	fun optionsWithReservations(phone: String) {
+	fun optionsWithReservations(
+		phone: String
+	) {
 		HttpClients.createDefault().use {
 			val request = HttpOptions("https://api.obs.by/clients/withReservations/$phone")
 
@@ -19,7 +21,9 @@ object ClientsDao {
 		}
 	}
 
-	fun getWithReservations(phone: String, token: String): ClientInfo {
+	fun getWithReservations(
+		phone: String, token: String
+	): ClientInfo {
 		HttpClients.createDefault().use {
 			val request = HttpGet("https://api.obs.by/clients/withReservations/$phone")
 

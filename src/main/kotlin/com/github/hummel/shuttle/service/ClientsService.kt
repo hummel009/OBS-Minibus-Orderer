@@ -5,7 +5,9 @@ import com.github.hummel.shuttle.dao.ClientsDao
 import com.github.hummel.shuttle.dao.TransfersDao
 
 object ClientsService {
-	fun unlock(phone: String) {
+	fun unlock(
+		phone: String
+	) {
 		try {
 			ClientsDao.optionsWithReservations(phone)
 		} catch (e: Exception) {
@@ -26,16 +28,8 @@ object ClientsService {
 		return try {
 			val clientInfo = ClientsDao.getWithReservations(phone, token)
 
-			val transfersInfo = if (!cache.transfersInfoPseudo) {
-				cache.transfersInfo
-			} else {
-				val cityInfo = cache.citiesInfo.find {
-					it.from.name == cityFromName
-				}!!
-				val cityFromId = cityInfo.from.id
-				val cityToId = cityInfo.to.find {
-					it.name == cityToName
-				}!!.id
+			val transfersInfo = if (!cache.transfersInfoPseudo) cache.transfersInfo else {
+				val (cityFromId, cityToId) = CitiesService.getCityIdsByNames(cache, cityFromName, cityToName)
 
 				cache.transfersInfo = TransfersDao.getBetweenCities(phone, date, cityFromId, cityToId)
 
@@ -57,8 +51,6 @@ object ClientsService {
 				it.date == date && it.from.time == realTime
 			}
 		} catch (_: Exception) {
-			println("[Проверка наличия взятого билета] Расписание на эту дату недоступно. Ожидание реальных данных.")
-
 			true
 		}
 	}

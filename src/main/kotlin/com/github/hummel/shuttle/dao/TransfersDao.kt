@@ -9,7 +9,9 @@ import org.apache.hc.core5.http.io.entity.EntityUtils
 import org.apache.hc.core5.http.io.entity.StringEntity
 
 object TransfersDao {
-	fun getBetweenCities(phone: String, date: String, cityFromId: String, cityToId: String): Array<TransfersInfo> {
+	fun getBetweenCities(
+		phone: String, date: String, cityFromId: String, cityToId: String
+	): Array<TransfersInfo> {
 		HttpClients.createDefault().use {
 			val request = HttpPost("https://api.obs.by/transfers/betweenCities")
 			val payload = """

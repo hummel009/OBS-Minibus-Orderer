@@ -126,7 +126,7 @@ class GUI : JFrame() {
 
 					ClientsService.unlock(phoneField.text)
 
-					val shouldExecute = ClientsService.isTicketNotOrdered(
+					val notOrdered = ClientsService.isTicketNotOrdered(
 						cache,
 						phoneField.text,
 						tokenField.text,
@@ -137,14 +137,19 @@ class GUI : JFrame() {
 						stopsFromNamesDropdown.getSelectedItemString()
 					)
 
-					if (shouldExecute) {
+					if (cache.transfersInfoPseudo) {
+						println("[$time] Расписание не открыто. Следующая попытка через 60 секунд.")
+
+						Thread.sleep(60000)
+
+						continue@loop
+					}
+
+					if (notOrdered) {
 						ReservationsService.postBook(
 							cache,
 							phoneField.text,
 							tokenField.text,
-							dateField.text,
-							citiesFromNamesDropdown.getSelectedItemString(),
-							citiesToNamesDropdown.getSelectedItemString(),
 							timesDropdown.getSelectedItemString(),
 							stopsFromNamesDropdown.getSelectedItemString(),
 							stopsToNamesDropdown.getSelectedItemString()
@@ -153,16 +158,18 @@ class GUI : JFrame() {
 						println("[$time] Попытка завершена. Следующая попытка через 60 секунд.")
 
 						Thread.sleep(60000)
-					} else {
-						println("[$time] Билет заказан.")
 
-						if (!exitCheckbox.isSelected && !shutdownCheckbox.isSelected) {
-							JOptionPane.showMessageDialog(
-								this, "[$time] Билет заказан.", "Message", JOptionPane.INFORMATION_MESSAGE
-							)
-						}
-						break@loop
+						continue@loop
 					}
+
+					println("[$time] Билет заказан.")
+
+					if (!exitCheckbox.isSelected && !shutdownCheckbox.isSelected) {
+						JOptionPane.showMessageDialog(
+							this, "[$time] Билет заказан.", "Message", JOptionPane.INFORMATION_MESSAGE
+						)
+					}
+					break@loop
 				}
 			}
 
