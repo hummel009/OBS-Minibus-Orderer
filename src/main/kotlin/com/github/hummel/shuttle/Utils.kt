@@ -1,7 +1,10 @@
 package com.github.hummel.shuttle
 
 import com.google.gson.Gson
+import java.time.format.DateTimeFormatter
 import javax.swing.JComboBox
+
+val formatter: DateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd")
 
 val gson: Gson = Gson()
 

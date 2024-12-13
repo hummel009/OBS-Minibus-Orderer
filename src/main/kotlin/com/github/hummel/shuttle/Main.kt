@@ -11,13 +11,10 @@ import java.awt.GridLayout
 import java.time.LocalDate
 import java.time.LocalTime
 import java.time.ZoneId
-import java.time.format.DateTimeFormatter
 import javax.swing.*
 import javax.swing.border.EmptyBorder
 import kotlin.concurrent.thread
 import kotlin.system.exitProcess
-
-val formatter: DateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd")
 
 fun main() {
 	FlatLightLaf.setup()
