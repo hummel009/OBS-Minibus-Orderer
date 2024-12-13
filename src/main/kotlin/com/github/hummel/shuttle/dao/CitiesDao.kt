@@ -1,7 +1,7 @@
 package com.github.hummel.shuttle.dao
 
 import com.github.hummel.shuttle.bean.CitiesInfo
-import com.google.gson.Gson
+import com.github.hummel.shuttle.gson
 import org.apache.hc.client5.http.classic.methods.HttpGet
 import org.apache.hc.client5.http.impl.classic.HttpClients
 import org.apache.hc.core5.http.io.entity.EntityUtils
@@ -16,7 +16,7 @@ object CitiesDao {
 
 				val stringResponse = EntityUtils.toString(entity)
 
-				Gson().fromJson(stringResponse, Array<CitiesInfo>::class.java)
+				gson.fromJson(stringResponse, Array<CitiesInfo>::class.java)
 			}
 		}
 	}

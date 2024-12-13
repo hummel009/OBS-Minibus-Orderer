@@ -3,7 +3,6 @@ package com.github.hummel.shuttle.service
 import com.github.hummel.shuttle.Cache
 import com.github.hummel.shuttle.dao.ReservationsDao
 import com.github.hummel.shuttle.dao.TransfersDao
-import kotlin.collections.find
 
 object ReservationsService {
 	fun postBook(
@@ -11,8 +10,8 @@ object ReservationsService {
 		phone: String,
 		token: String,
 		date: String,
-		cityFromId: String,
-		cityToId: String,
+		cityFromName: String,
+		cityToName: String,
 		time: String,
 		stopFromName: String,
 		stopToName: String
@@ -20,7 +19,22 @@ object ReservationsService {
 		val transfersInfo = if (!cache.transfersInfoPseudo) {
 			cache.transfersInfo
 		} else {
-			TransfersDao.getBetweenCities(phone, date, cityFromId, cityToId)
+			val cityInfo = cache.citiesInfo.find {
+				it.from.name == cityFromName
+			}!!
+			val cityFromId = cityInfo.from.id
+			val cityToId = cityInfo.to.find {
+				it.name == cityToName
+			}!!.id
+
+			cache.transfersInfo = TransfersDao.getBetweenCities(phone, date, cityFromId, cityToId)
+
+			if (cache.transfersInfo.isEmpty()) {
+				throw Exception()
+			}
+
+			cache.transfersInfoPseudo = false
+			cache.transfersInfo
 		}
 
 		try {
@@ -39,7 +53,7 @@ object ReservationsService {
 
 			ReservationsDao.postBook(phone, token, transferId, stopFromId, stopToId)
 		} catch (_: Exception) {
-			println("Расписание на эту дату недоступно. Ожидание реальных данных.")
+			println("[Заказ билета] Расписание на эту дату недоступно. Ожидание реальных данных.")
 		}
 	}
 }

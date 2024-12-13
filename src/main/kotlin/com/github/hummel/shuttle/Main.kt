@@ -9,6 +9,8 @@ import com.github.hummel.shuttle.service.TransfersService
 import java.awt.EventQueue
 import java.awt.GridLayout
 import java.time.LocalDate
+import java.time.LocalTime
+import java.time.ZoneId
 import java.time.format.DateTimeFormatter
 import javax.swing.*
 import javax.swing.border.EmptyBorder
@@ -119,10 +121,8 @@ class GUI : JFrame() {
 
 			thread {
 				loop@ while (true) {
-					val currentTime = System.currentTimeMillis()
-					val minutes = (currentTime / (1000 * 60)) % 60
-					val hours = (currentTime / (1000 * 60 * 60)) % 24
-					val time = "%02d:%02d".format(hours, minutes)
+					val currentTime = LocalTime.now(ZoneId.systemDefault())
+					val time = "%02d:%02d".format(currentTime.hour, currentTime.minute)
 
 					ClientsService.unlock(phoneField.text)
 
@@ -131,6 +131,8 @@ class GUI : JFrame() {
 						phoneField.text,
 						tokenField.text,
 						dateField.text,
+						citiesFromNamesDropdown.getSelectedItemString(),
+						citiesToNamesDropdown.getSelectedItemString(),
 						timesDropdown.getSelectedItemString(),
 						stopsFromNamesDropdown.getSelectedItemString()
 					)
@@ -206,8 +208,6 @@ class GUI : JFrame() {
 	private fun createRefreshStopsToButton(): JButton {
 		refreshStopsToButton.isEnabled = false
 		refreshStopsToButton.addActionListener {
-			ClientsService.unlock(phoneField.text)
-
 			stopsToNames = TransfersService.getStopsToNames(
 				cache, timesDropdown.getSelectedItemString(), stopsFromNamesDropdown.getSelectedItemString()
 			)
@@ -247,8 +247,6 @@ class GUI : JFrame() {
 	private fun createRefreshStopsFromButton(): JButton {
 		refreshStopsFromButton.isEnabled = false
 		refreshStopsFromButton.addActionListener {
-			ClientsService.unlock(phoneField.text)
-
 			stopsFromNames = TransfersService.getStopsFromNames(
 				cache, timesDropdown.getSelectedItemString()
 			)
@@ -288,8 +286,6 @@ class GUI : JFrame() {
 	private fun createRefreshTimesFromButton(): JButton {
 		refreshTimesFromButton.isEnabled = false
 		refreshTimesFromButton.addActionListener {
-			ClientsService.unlock(phoneField.text)
-
 			times = TransfersService.getTimes(
 				cache,
 				phoneField.text,
@@ -332,8 +328,6 @@ class GUI : JFrame() {
 	private fun createRefreshCitiesToButton(): JButton {
 		refreshCitiesToButton.isEnabled = false
 		refreshCitiesToButton.addActionListener {
-			ClientsService.unlock(phoneField.text)
-
 			citiesToNames = CitiesService.getCitiesToNames(
 				cache, citiesFromNamesDropdown.getSelectedItemString()
 			)
@@ -371,8 +365,6 @@ class GUI : JFrame() {
 
 	private fun createRefreshCitiesFromButton(): JButton {
 		refreshCitiesFromButton.addActionListener {
-			ClientsService.unlock(phoneField.text)
-
 			citiesFromNames = CitiesService.getCitiesFromNames(cache)
 
 			citiesFromNamesDropdown.removeAllItems()

@@ -26,9 +26,7 @@ object TransfersService {
 				throw Exception()
 			}
 
-			times.sort()
-
-			times
+			times.sortedArray()
 		} catch (_: Exception) {
 			println("Расписание на эту дату недоступно. Загружены псевдо-данные завтрашнего дня.")
 
@@ -41,9 +39,7 @@ object TransfersService {
 				it.from.time
 			}.toTypedArray()
 
-			times.sort()
-
-			times
+			times.sortedArray()
 		}
 	}
 

@@ -10,19 +10,20 @@ object CitiesService {
 
 			val citiesFromNames = cache.citiesInfo.map {
 				it.from.name
-			}.toTypedArray()
+			}.toMutableList()
 
 			if (citiesFromNames.isEmpty()) {
 				throw Exception()
 			}
 
-			citiesFromNames.sort()
+			citiesFromNames.remove("Минск")
+			citiesFromNames.remove("Логойск")
 
-			citiesFromNames
+			arrayOf("Логойск", "Минск") + citiesFromNames.toTypedArray().sortedArray()
 		} catch (e: Exception) {
 			e.printStackTrace()
 
-			arrayOf("Минск", "Логойск")
+			arrayOf("Логойск", "Минск")
 		}
 	}
 
@@ -32,19 +33,20 @@ object CitiesService {
 				it.from.name == cityFromName
 			}!!.to.map {
 				it.name
-			}.toTypedArray()
+			}.toMutableList()
 
 			if (citiesToNames.isEmpty()) {
 				throw Exception()
 			}
 
-			citiesToNames.sort()
+			citiesToNames.remove("Минск")
+			citiesToNames.remove("Логойск")
 
-			citiesToNames
+			arrayOf("Логойск", "Минск") + citiesToNames.toTypedArray().sortedArray()
 		} catch (e: Exception) {
 			e.printStackTrace()
 
-			arrayOf("Минск", "Логойск")
+			arrayOf("Логойск", "Минск")
 		}
 	}
 }

@@ -1,7 +1,7 @@
 package com.github.hummel.shuttle.dao
 
 import com.github.hummel.shuttle.bean.TransfersInfo
-import com.google.gson.Gson
+import com.github.hummel.shuttle.gson
 import org.apache.hc.client5.http.classic.methods.HttpPost
 import org.apache.hc.client5.http.impl.classic.HttpClients
 import org.apache.hc.core5.http.ContentType
@@ -28,7 +28,7 @@ object TransfersDao {
 
 				val stringResponse = EntityUtils.toString(entity)
 
-				Gson().fromJson(stringResponse, Array<TransfersInfo>::class.java)
+				gson.fromJson(stringResponse, Array<TransfersInfo>::class.java)
 			}
 		}
 	}
