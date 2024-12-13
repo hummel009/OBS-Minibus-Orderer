@@ -12,16 +12,21 @@ object CitiesService {
 
 			val citiesFromNames = cache.citiesInfo.map {
 				it.from.name
-			}.toMutableList()
+			}.toSortedSet().toMutableList()
 
 			if (citiesFromNames.isEmpty()) {
 				throw Exception()
 			}
 
-			citiesFromNames.remove("Логойск")
-			citiesFromNames.remove("Минск")
+			citiesFromNames.indexOf("Логойск").takeIf { it != -1 }?.let {
+				citiesFromNames.add(0, citiesFromNames.removeAt(it))
+			}
 
-			arrayOf("Логойск", "Минск") + citiesFromNames.toTypedArray().sortedArray()
+			citiesFromNames.indexOf("Минск").takeIf { it != -1 }?.let {
+				citiesFromNames.add(0, citiesFromNames.removeAt(it))
+			}
+
+			citiesFromNames.toTypedArray()
 		} catch (e: Exception) {
 			e.printStackTrace()
 
@@ -37,16 +42,21 @@ object CitiesService {
 				it.from.name == cityFromName
 			}!!.to.map {
 				it.name
-			}.toMutableList()
+			}.toSortedSet().toMutableList()
 
 			if (citiesToNames.isEmpty()) {
 				throw Exception()
 			}
 
-			citiesToNames.remove("Логойск")
-			citiesToNames.remove("Минск")
+			citiesToNames.indexOf("Логойск").takeIf { it != -1 }?.let {
+				citiesToNames.add(0, citiesToNames.removeAt(it))
+			}
 
-			arrayOf("Логойск", "Минск") + citiesToNames.toTypedArray().sortedArray()
+			citiesToNames.indexOf("Минск").takeIf { it != -1 }?.let {
+				citiesToNames.add(0, citiesToNames.removeAt(it))
+			}
+
+			citiesToNames.toTypedArray()
 		} catch (e: Exception) {
 			e.printStackTrace()
 
