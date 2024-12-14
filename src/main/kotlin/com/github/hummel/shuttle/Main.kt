@@ -123,8 +123,6 @@ class GUI : JFrame() {
 					val currentTime = LocalTime.now(ZoneId.systemDefault())
 					val time = "%02d:%02d".format(currentTime.hour, currentTime.minute)
 
-					ClientsService.unlock(phoneField.text)
-
 					val notOrdered = ClientsService.isTicketNotOrdered(
 						cache = cache,
 						phone = phoneField.text,

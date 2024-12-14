@@ -5,16 +5,6 @@ import com.github.hummel.shuttle.dao.ClientsDao
 import com.github.hummel.shuttle.dao.TransfersDao
 
 object ClientsService {
-	fun unlock(
-		phone: String
-	) {
-		try {
-			ClientsDao.optionsWithReservations(phone)
-		} catch (e: Exception) {
-			e.printStackTrace()
-		}
-	}
-
 	fun isTicketNotOrdered(
 		cache: Cache,
 		phone: String,
@@ -26,6 +16,8 @@ object ClientsService {
 		stopFromName: String
 	): Boolean {
 		return try {
+			ClientsDao.optionsWithReservations(phone)
+
 			val clientInfo = ClientsDao.getWithReservations(phone, token)
 
 			val transfersInfo = if (!cache.transfersInfoPseudo) cache.transfersInfo else {
