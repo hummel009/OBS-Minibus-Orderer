@@ -1,7 +1,7 @@
 package com.github.hummel.shuttle
 
 import com.formdev.flatlaf.FlatLightLaf
-import com.formdev.flatlaf.intellijthemes.materialthemeuilite.FlatGitHubDarkIJTheme
+import com.formdev.flatlaf.intellijthemes.materialthemeuilite.FlatMTGitHubDarkIJTheme
 import com.github.hummel.shuttle.service.CitiesService
 import com.github.hummel.shuttle.service.ClientsService
 import com.github.hummel.shuttle.service.ReservationsService
@@ -20,7 +20,7 @@ fun main() {
 	FlatLightLaf.setup()
 	EventQueue.invokeLater {
 		try {
-			UIManager.setLookAndFeel(FlatGitHubDarkIJTheme())
+			UIManager.setLookAndFeel(FlatMTGitHubDarkIJTheme())
 			val frame = GUI()
 			frame.isVisible = true
 		} catch (e: Exception) {
