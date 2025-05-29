@@ -411,9 +411,6 @@ class GUI : JFrame() {
 
 		val left = JLabel("Токен:")
 
-		tokenField.text =
-			"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJwaG9uZSI6IiszNzUyOTYxODYxODMiLCJyb2xlIjoiY2xpZW50IiwiaWF0IjoxNzI4OTIzMDM0fQ.qfks2dNmBB2XBPkAQMJBDNtePgA_Ci3K2wl5B5MMvYU"
-
 		panel.add(left)
 		panel.add(tokenField)
 
@@ -426,8 +423,6 @@ class GUI : JFrame() {
 		panel.layout = GridLayout(0, 2, 5, 5)
 
 		val left = JLabel("Номер телефона:")
-
-		phoneField.text = "+375296186183"
 
 		panel.add(left)
 		panel.add(phoneField)
