@@ -30,34 +30,34 @@ fun main() {
 }
 
 class GUI : JFrame() {
-	private var cache = Cache()
+	private var cache: Cache = Cache()
 
-	private var citiesFromNames = arrayOf("Не выбрано...")
-	private var citiesToNames = arrayOf("Не выбрано...")
-	private var stopsFromNames = arrayOf("Не выбрано...")
-	private var stopsToNames = arrayOf("Не выбрано...")
-	private var times = arrayOf("Не выбрано...")
+	private var citiesFromNames: Array<String> = arrayOf("Не выбрано...")
+	private var citiesToNames: Array<String> = arrayOf("Не выбрано...")
+	private var stopsFromNames: Array<String> = arrayOf("Не выбрано...")
+	private var stopsToNames: Array<String> = arrayOf("Не выбрано...")
+	private var times: Array<String> = arrayOf("Не выбрано...")
 
-	private val citiesFromNamesDropdown = JComboBox(citiesFromNames)
-	private val citiesToNamesDropdown = JComboBox(citiesToNames)
-	private val stopsFromNamesDropdown = JComboBox(stopsFromNames)
-	private val stopsToNamesDropdown = JComboBox(stopsToNames)
-	private val timesDropdown = JComboBox(times)
+	private val citiesFromNamesDropdown: JComboBox<String?> = JComboBox(citiesFromNames)
+	private val citiesToNamesDropdown: JComboBox<String?> = JComboBox(citiesToNames)
+	private val stopsFromNamesDropdown: JComboBox<String?> = JComboBox(stopsFromNames)
+	private val stopsToNamesDropdown: JComboBox<String?> = JComboBox(stopsToNames)
+	private val timesDropdown: JComboBox<String?> = JComboBox(times)
 
-	private val phoneField = JTextField(20)
-	private val tokenField = JTextField(20)
-	private val dateField = JTextField(20)
+	private val phoneField: JTextField = JTextField(20)
+	private val tokenField: JTextField = JTextField(20)
+	private val dateField: JTextField = JTextField(20)
 
-	private val refreshCitiesFromButton = JButton("Обновить список городов отправки")
-	private val refreshCitiesToButton = JButton("Обновить список городов прибытия")
-	private val refreshTimesFromButton = JButton("Обновить доступные времена отправки")
-	private val refreshStopsFromButton = JButton("Обновить список остановок отправки")
-	private val refreshStopsToButton = JButton("Обновить список остановок прибытия")
+	private val refreshCitiesFromButton: JButton = JButton("Обновить список городов отправки")
+	private val refreshCitiesToButton: JButton = JButton("Обновить список городов прибытия")
+	private val refreshTimesFromButton: JButton = JButton("Обновить доступные времена отправки")
+	private val refreshStopsFromButton: JButton = JButton("Обновить список остановок отправки")
+	private val refreshStopsToButton: JButton = JButton("Обновить список остановок прибытия")
 
-	private val startButton = JButton("Запуск бота")
+	private val startButton: JButton = JButton("Запуск бота")
 
-	private val shutdownCheckbox = JCheckBox("Гибернация ПК")
-	private val exitCheckbox = JCheckBox("Выключение бота")
+	private val shutdownCheckbox: JCheckBox = JCheckBox("Гибернация ПК")
+	private val exitCheckbox: JCheckBox = JCheckBox("Выключение бота")
 
 	init {
 		title = "Hummel009's Shuttle Bot"
