@@ -1,8 +1,8 @@
-package com.github.hummel.obsby.service
+package com.github.hummel.obsmo.service
 
-import com.github.hummel.obsby.Cache
-import com.github.hummel.obsby.dao.TransfersDao
-import com.github.hummel.obsby.formatter
+import com.github.hummel.obsmo.Cache
+import com.github.hummel.obsmo.dao.TransfersDao
+import com.github.hummel.obsmo.formatter
 import java.time.LocalDate
 
 object TransfersService {

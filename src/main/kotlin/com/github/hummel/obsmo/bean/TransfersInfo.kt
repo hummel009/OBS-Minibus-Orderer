@@ -1,4 +1,4 @@
-package com.github.hummel.obsby.bean
+package com.github.hummel.obsmo.bean
 
 data class TransfersInfo(
 	val id: String,

@@ -1,7 +1,7 @@
-package com.github.hummel.obsby.service
+package com.github.hummel.obsmo.service
 
-import com.github.hummel.obsby.Cache
-import com.github.hummel.obsby.dao.CitiesDao
+import com.github.hummel.obsmo.Cache
+import com.github.hummel.obsmo.dao.CitiesDao
 
 object CitiesService {
 	fun getCitiesFromNames(
