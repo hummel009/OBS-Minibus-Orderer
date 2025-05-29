@@ -1,7 +1,7 @@
-package com.github.hummel.shuttle
+package com.github.hummel.obsby
 
-import com.github.hummel.shuttle.bean.CitiesInfo
-import com.github.hummel.shuttle.bean.TransfersInfo
+import com.github.hummel.obsby.bean.CitiesInfo
+import com.github.hummel.obsby.bean.TransfersInfo
 
 class Cache {
 	lateinit var citiesInfo: Array<CitiesInfo>

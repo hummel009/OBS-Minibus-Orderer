@@ -1,4 +1,4 @@
-package com.github.hummel.shuttle.bean
+package com.github.hummel.obsby.bean
 
 data class CitiesInfo(
 	val from: FromCity, val to: List<ToCity>

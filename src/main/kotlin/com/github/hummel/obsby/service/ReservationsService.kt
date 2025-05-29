@@ -1,7 +1,7 @@
-package com.github.hummel.shuttle.service
+package com.github.hummel.obsby.service
 
-import com.github.hummel.shuttle.Cache
-import com.github.hummel.shuttle.dao.ReservationsDao
+import com.github.hummel.obsby.Cache
+import com.github.hummel.obsby.dao.ReservationsDao
 
 object ReservationsService {
 	fun postBook(

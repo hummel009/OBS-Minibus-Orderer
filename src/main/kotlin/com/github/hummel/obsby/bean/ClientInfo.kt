@@ -1,4 +1,4 @@
-package com.github.hummel.shuttle.bean
+package com.github.hummel.obsby.bean
 
 data class ClientInfo(
 	val name: String,

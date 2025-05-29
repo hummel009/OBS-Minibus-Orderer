@@ -1,7 +1,7 @@
-package com.github.hummel.shuttle.dao
+package com.github.hummel.obsby.dao
 
-import com.github.hummel.shuttle.bean.TransfersInfo
-import com.github.hummel.shuttle.gson
+import com.github.hummel.obsby.bean.TransfersInfo
+import com.github.hummel.obsby.gson
 import org.apache.hc.client5.http.classic.methods.HttpPost
 import org.apache.hc.client5.http.impl.classic.HttpClients
 import org.apache.hc.core5.http.ContentType

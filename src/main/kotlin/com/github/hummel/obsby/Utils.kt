@@ -1,4 +1,4 @@
-package com.github.hummel.shuttle
+package com.github.hummel.obsby
 
 import com.google.gson.Gson
 import java.time.format.DateTimeFormatter

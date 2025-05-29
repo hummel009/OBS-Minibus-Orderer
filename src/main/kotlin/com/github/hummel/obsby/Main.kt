@@ -1,11 +1,11 @@
-package com.github.hummel.shuttle
+package com.github.hummel.obsby
 
 import com.formdev.flatlaf.FlatLightLaf
 import com.formdev.flatlaf.intellijthemes.materialthemeuilite.FlatMTGitHubDarkIJTheme
-import com.github.hummel.shuttle.service.CitiesService
-import com.github.hummel.shuttle.service.ClientsService
-import com.github.hummel.shuttle.service.ReservationsService
-import com.github.hummel.shuttle.service.TransfersService
+import com.github.hummel.obsby.service.CitiesService
+import com.github.hummel.obsby.service.ClientsService
+import com.github.hummel.obsby.service.ReservationsService
+import com.github.hummel.obsby.service.TransfersService
 import java.awt.EventQueue
 import java.awt.GridLayout
 import java.time.LocalDate

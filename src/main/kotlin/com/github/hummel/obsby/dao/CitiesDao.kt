@@ -1,7 +1,7 @@
-package com.github.hummel.shuttle.dao
+package com.github.hummel.obsby.dao
 
-import com.github.hummel.shuttle.bean.CitiesInfo
-import com.github.hummel.shuttle.gson
+import com.github.hummel.obsby.bean.CitiesInfo
+import com.github.hummel.obsby.gson
 import org.apache.hc.client5.http.classic.methods.HttpGet
 import org.apache.hc.client5.http.impl.classic.HttpClients
 import org.apache.hc.core5.http.io.entity.EntityUtils
