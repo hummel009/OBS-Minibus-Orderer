@@ -30,13 +30,15 @@ fun main() {
 }
 
 class GUI : JFrame() {
+	private val placeholder: String = "Не выбрано..."
+
 	private var cache: Cache = Cache()
 
-	private var citiesFromNames: Array<String> = arrayOf("Не выбрано...")
-	private var citiesToNames: Array<String> = arrayOf("Не выбрано...")
-	private var stopsFromNames: Array<String> = arrayOf("Не выбрано...")
-	private var stopsToNames: Array<String> = arrayOf("Не выбрано...")
-	private var times: Array<String> = arrayOf("Не выбрано...")
+	private var citiesFromNames: Array<String> = arrayOf(placeholder)
+	private var citiesToNames: Array<String> = arrayOf(placeholder)
+	private var stopsFromNames: Array<String> = arrayOf(placeholder)
+	private var stopsToNames: Array<String> = arrayOf(placeholder)
+	private var times: Array<String> = arrayOf(placeholder)
 
 	private val citiesFromNamesDropdown: JComboBox<String?> = JComboBox(citiesFromNames)
 	private val citiesToNamesDropdown: JComboBox<String?> = JComboBox(citiesToNames)
@@ -60,7 +62,7 @@ class GUI : JFrame() {
 	private val exitCheckbox: JCheckBox = JCheckBox("Выключение бота")
 
 	init {
-		title = "Hummel009's Shuttle Bot"
+		title = "Hummel009's Minibus Orderer"
 		defaultCloseOperation = EXIT_ON_CLOSE
 
 		setBounds(0, 0, 400, 600)
