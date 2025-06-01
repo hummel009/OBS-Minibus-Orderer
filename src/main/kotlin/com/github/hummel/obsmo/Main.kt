@@ -97,15 +97,14 @@ class MinibusOrderer : JFrame() {
 				"Остановка прибытия:", stopsToCombo, refreshStopsTo, ::updateStopsTo
 			)
 		)
-
-		contentPanel.add(start)
-
-		refreshCitiesFrom.isEnabled = true
-
-		start.isEnabled = false
-		start.addActionListener { startOrderingProcess() }
+		contentPanel.add(start.apply {
+			isEnabled = false
+			addActionListener { startOrderingProcess() }
+		})
 
 		contentPane = contentPanel
+
+		refreshCitiesFrom.isEnabled = true
 
 		setLocationRelativeTo(null)
 	}
