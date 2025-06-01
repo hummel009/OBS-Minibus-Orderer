@@ -110,7 +110,7 @@ class MinibusOrderer : JFrame() {
 	}
 
 	private fun createCheckboxPanel(): JPanel {
-		return JPanel(GridLayout(1, 2)).apply {
+		return JPanel(GridLayout(1, 2, 5, 5)).apply {
 			add(shutdownCheck)
 			add(exitCheck)
 		}
