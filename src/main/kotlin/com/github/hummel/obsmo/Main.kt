@@ -251,7 +251,7 @@ class MinibusOrderer : JFrame() {
 					if (!exitCheck.isSelected && !shutdownCheck.isSelected) {
 						EventQueue.invokeLater {
 							JOptionPane.showMessageDialog(
-								this, "[$time] Билет заказан.", "Message", JOptionPane.INFORMATION_MESSAGE
+								this, "[$time] Билет заказан.", "Успех", JOptionPane.INFORMATION_MESSAGE
 							)
 						}
 					}
