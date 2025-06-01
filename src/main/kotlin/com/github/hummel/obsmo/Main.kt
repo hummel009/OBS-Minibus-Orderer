@@ -44,11 +44,11 @@ class MinibusOrderer : JFrame() {
 	private val stopsToCombo: JComboBox<String> = JComboBox<String>()
 	private val timesCombo: JComboBox<String> = JComboBox<String>()
 
-	private val refreshCitiesFrom: JButton = JButton("Обновить города отправки")
-	private val refreshCitiesTo: JButton = JButton("Обновить города прибытия")
-	private val refreshTimes: JButton = JButton("Обновить время отправки")
-	private val refreshStopsFrom: JButton = JButton("Обновить остановки отправки")
-	private val refreshStopsTo: JButton = JButton("Обновить остановки прибытия")
+	private val refreshCitiesFrom: JButton = JButton("Обновить")
+	private val refreshCitiesTo: JButton = JButton("Обновить")
+	private val refreshTimes: JButton = JButton("Обновить")
+	private val refreshStopsFrom: JButton = JButton("Обновить")
+	private val refreshStopsTo: JButton = JButton("Обновить")
 
 	private val start: JButton = JButton("Запуск бота")
 
@@ -58,7 +58,7 @@ class MinibusOrderer : JFrame() {
 	init {
 		title = "Hummel009's Minibus Orderer"
 		defaultCloseOperation = EXIT_ON_CLOSE
-		setBounds(100, 100, 600, 810)
+		setBounds(100, 100, 600, 540)
 
 		val contentPanel = JPanel().apply {
 			border = EmptyBorder(10, 10, 10, 10)
@@ -72,39 +72,38 @@ class MinibusOrderer : JFrame() {
 			text = LocalDate.now().format(formatter)
 		}))
 
-		contentPanel.add(refreshCitiesFrom)
-		refreshCitiesFrom.addActionListener { updateCitiesFrom() }
-		refreshCitiesTo.isEnabled = true
-
-		contentPanel.add(createComboPanel("Город отправки:", citiesFromCombo))
-
-		contentPanel.add(refreshCitiesTo)
-		refreshCitiesTo.addActionListener { updateCitiesTo() }
-		refreshCitiesTo.isEnabled = false
-
-		contentPanel.add(createComboPanel("Город прибытия:", citiesToCombo))
-
-		contentPanel.add(refreshTimes)
-		refreshTimes.addActionListener { updateTimes() }
-		refreshTimes.isEnabled = false
-
-		contentPanel.add(createComboPanel("Время отправки:", timesCombo))
-
-		contentPanel.add(refreshStopsFrom)
-		refreshStopsFrom.addActionListener { updateStopsFrom() }
-		refreshStopsFrom.isEnabled = false
-
-		contentPanel.add(createComboPanel("Остановка отправки:", stopsFromCombo))
-
-		contentPanel.add(refreshStopsTo)
-		refreshStopsTo.addActionListener { updateStopsTo() }
-		refreshStopsTo.isEnabled = false
-
-		contentPanel.add(createComboPanel("Остановка прибытия:", stopsToCombo))
+		contentPanel.add(
+			createButtonComboPanel(
+				"Город отправки:", citiesFromCombo, refreshCitiesFrom, ::updateCitiesFrom
+			)
+		)
+		contentPanel.add(
+			createButtonComboPanel(
+				"Город прибытия:", citiesToCombo, refreshCitiesTo, ::updateCitiesTo
+			)
+		)
+		contentPanel.add(
+			createButtonComboPanel(
+				"Время отправки:", timesCombo, refreshTimes, ::updateTimes
+			)
+		)
+		contentPanel.add(
+			createButtonComboPanel(
+				"Остановка отправки:", stopsFromCombo, refreshStopsFrom, ::updateStopsFrom
+			)
+		)
+		contentPanel.add(
+			createButtonComboPanel(
+				"Остановка прибытия:", stopsToCombo, refreshStopsTo, ::updateStopsTo
+			)
+		)
 
 		contentPanel.add(start)
-		start.addActionListener { startOrderingProcess() }
+
+		refreshCitiesFrom.isEnabled = true
+
 		start.isEnabled = false
+		start.addActionListener { startOrderingProcess() }
 
 		contentPane = contentPanel
 
@@ -127,16 +126,22 @@ class MinibusOrderer : JFrame() {
 		}
 	}
 
-	private fun createComboPanel(label: String, combo: JComboBox<String>): JPanel {
+	private fun createButtonComboPanel(
+		label: String, combo: JComboBox<String>, button: JButton, butonListener: () -> Unit
+	): JPanel {
 		return JPanel(BorderLayout(5, 0)).apply {
 			add(JLabel(label).apply {
 				preferredSize = Dimension(150, preferredSize.height)
 			}, BorderLayout.WEST)
-			combo.model = DefaultComboBoxModel(arrayOf("Не выбрано..."))
-			combo.isEnabled = false
-			add(combo, BorderLayout.CENTER)
+			add(button, BorderLayout.CENTER)
+			add(combo.apply {
+				preferredSize = Dimension(250, preferredSize.height)
+			}, BorderLayout.EAST)
+			button.isEnabled = false
+			button.addActionListener { butonListener.invoke() }
 		}
 	}
+
 
 	private fun updateCitiesFrom() {
 		val citiesFromNames = CitiesService.getCitiesFromNames(cache)
