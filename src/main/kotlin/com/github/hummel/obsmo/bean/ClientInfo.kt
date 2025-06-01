@@ -54,7 +54,7 @@ data class ClientInfo(
 		val declined: Boolean,
 		val declinedBy: DeclinedBy,
 		val places: List<Int>,
-		val price: Int,
+		val price: Double,
 		val date: String,
 		val time: String,
 		val limit: Limit,
@@ -66,7 +66,7 @@ data class ClientInfo(
 		)
 
 		data class Car(
-			val number: String, val description: String, val amount: String
+			val number: String, val description: String, val amount: Int
 		)
 
 		data class DeclinedBy(

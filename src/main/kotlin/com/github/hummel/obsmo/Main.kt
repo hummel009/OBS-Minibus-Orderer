@@ -6,6 +6,8 @@ import com.github.hummel.obsmo.service.CitiesService
 import com.github.hummel.obsmo.service.ClientsService
 import com.github.hummel.obsmo.service.ReservationsService
 import com.github.hummel.obsmo.service.TransfersService
+import java.awt.BorderLayout
+import java.awt.Dimension
 import java.awt.EventQueue
 import java.awt.GridLayout
 import java.time.LocalDate
@@ -21,7 +23,7 @@ fun main() {
 	EventQueue.invokeLater {
 		try {
 			UIManager.setLookAndFeel(FlatMTGitHubDarkIJTheme())
-			val frame = GUI()
+			val frame = MinibusOrderer()
 			frame.isVisible = true
 		} catch (e: Exception) {
 			e.printStackTrace()
@@ -29,98 +31,180 @@ fun main() {
 	}
 }
 
-class GUI : JFrame() {
-	private val placeholder: String = "Не выбрано..."
+class MinibusOrderer : JFrame() {
+	private val cache: Cache = Cache()
 
-	private var cache: Cache = Cache()
+	private val phoneField: JTextField = JTextField()
+	private val tokenField: JTextField = JTextField()
+	private val dateField: JTextField = JTextField()
 
-	private var citiesFromNames: Array<String> = arrayOf(placeholder)
-	private var citiesToNames: Array<String> = arrayOf(placeholder)
-	private var stopsFromNames: Array<String> = arrayOf(placeholder)
-	private var stopsToNames: Array<String> = arrayOf(placeholder)
-	private var times: Array<String> = arrayOf(placeholder)
+	private val citiesFromCombo: JComboBox<String> = JComboBox<String>()
+	private val citiesToCombo: JComboBox<String> = JComboBox<String>()
+	private val stopsFromCombo: JComboBox<String> = JComboBox<String>()
+	private val stopsToCombo: JComboBox<String> = JComboBox<String>()
+	private val timesCombo: JComboBox<String> = JComboBox<String>()
 
-	private val citiesFromNamesDropdown: JComboBox<String?> = JComboBox(citiesFromNames)
-	private val citiesToNamesDropdown: JComboBox<String?> = JComboBox(citiesToNames)
-	private val stopsFromNamesDropdown: JComboBox<String?> = JComboBox(stopsFromNames)
-	private val stopsToNamesDropdown: JComboBox<String?> = JComboBox(stopsToNames)
-	private val timesDropdown: JComboBox<String?> = JComboBox(times)
+	private val refreshCitiesFrom: JButton = JButton("Обновить города отправки")
+	private val refreshCitiesTo: JButton = JButton("Обновить города прибытия")
+	private val refreshTimes: JButton = JButton("Обновить время отправки")
+	private val refreshStopsFrom: JButton = JButton("Обновить остановки отправки")
+	private val refreshStopsTo: JButton = JButton("Обновить остановки прибытия")
 
-	private val phoneField: JTextField = JTextField(20)
-	private val tokenField: JTextField = JTextField(20)
-	private val dateField: JTextField = JTextField(20)
+	private val start: JButton = JButton("Запуск бота")
 
-	private val refreshCitiesFromButton: JButton = JButton("Обновить список городов отправки")
-	private val refreshCitiesToButton: JButton = JButton("Обновить список городов прибытия")
-	private val refreshTimesFromButton: JButton = JButton("Обновить доступные времена отправки")
-	private val refreshStopsFromButton: JButton = JButton("Обновить список остановок отправки")
-	private val refreshStopsToButton: JButton = JButton("Обновить список остановок прибытия")
-
-	private val startButton: JButton = JButton("Запуск бота")
-
-	private val shutdownCheckbox: JCheckBox = JCheckBox("Гибернация ПК")
-	private val exitCheckbox: JCheckBox = JCheckBox("Выключение бота")
+	private val shutdownCheck: JCheckBox = JCheckBox("Гибернация ПК")
+	private val exitCheck: JCheckBox = JCheckBox("Выключение бота")
 
 	init {
 		title = "Hummel009's Minibus Orderer"
 		defaultCloseOperation = EXIT_ON_CLOSE
+		setBounds(100, 100, 600, 810)
 
-		setBounds(0, 0, 400, 600)
+		val contentPanel = JPanel().apply {
+			border = EmptyBorder(10, 10, 10, 10)
+			layout = GridLayout(0, 1, 5, 10)
+		}
 
-		val contentPanel = JPanel()
-		contentPanel.border = EmptyBorder(5, 5, 5, 5)
-		contentPanel.layout = GridLayout(0, 1, 0, 0)
+		contentPanel.add(createCheckboxPanel())
+		contentPanel.add(createInputPanel("Номер телефона:", phoneField))
+		contentPanel.add(createInputPanel("Токен:", tokenField))
+		contentPanel.add(createInputPanel("Дата отправки:", dateField.apply {
+			text = LocalDate.now().format(formatter)
+		}))
+
+		contentPanel.add(refreshCitiesFrom)
+		refreshCitiesFrom.addActionListener { updateCitiesFrom() }
+		refreshCitiesTo.isEnabled = true
+
+		contentPanel.add(createComboPanel("Город отправки:", citiesFromCombo))
+
+		contentPanel.add(refreshCitiesTo)
+		refreshCitiesTo.addActionListener { updateCitiesTo() }
+		refreshCitiesTo.isEnabled = false
+
+		contentPanel.add(createComboPanel("Город прибытия:", citiesToCombo))
+
+		contentPanel.add(refreshTimes)
+		refreshTimes.addActionListener { updateTimes() }
+		refreshTimes.isEnabled = false
+
+		contentPanel.add(createComboPanel("Время отправки:", timesCombo))
+
+		contentPanel.add(refreshStopsFrom)
+		refreshStopsFrom.addActionListener { updateStopsFrom() }
+		refreshStopsFrom.isEnabled = false
+
+		contentPanel.add(createComboPanel("Остановка отправки:", stopsFromCombo))
+
+		contentPanel.add(refreshStopsTo)
+		refreshStopsTo.addActionListener { updateStopsTo() }
+		refreshStopsTo.isEnabled = false
+
+		contentPanel.add(createComboPanel("Остановка прибытия:", stopsToCombo))
+
+		contentPanel.add(start)
+		start.addActionListener { startOrderingProcess() }
+		start.isEnabled = false
+
 		contentPane = contentPanel
-
-		val checkboxPanel = createCheckboxPanel()
-		val tokenPanel = createTokenPanel()
-		val phonePanel = createPhonePanel()
-		val refreshCitiesFromButton = createRefreshCitiesFromButton()
-		val citiesFromPanel = createCitiesFromPanel()
-		val refreshCitiesToButton = createRefreshCitiesToButton()
-		val citiesToPanel = createCitiesToPanel()
-		val datePanel = createDatePanel()
-		val refreshTimesButton = createRefreshTimesFromButton()
-		val timePanel = createTimePanel()
-		val refreshStopsFromButton = createRefreshStopsFromButton()
-		val stopsFromPanel = createStopsFromPanel()
-		val refreshStopsToButton = createRefreshStopsToButton()
-		val stopsToPanel = createStopsToPanel()
-		val startButton = createStartButton()
-
-		contentPanel.add(checkboxPanel)
-		contentPanel.add(tokenPanel)
-		contentPanel.add(phonePanel)
-		contentPanel.add(datePanel)
-		contentPanel.add(refreshCitiesFromButton)
-		contentPanel.add(citiesFromPanel)
-		contentPanel.add(refreshCitiesToButton)
-		contentPanel.add(citiesToPanel)
-		contentPanel.add(refreshTimesButton)
-		contentPanel.add(timePanel)
-		contentPanel.add(refreshStopsFromButton)
-		contentPanel.add(stopsFromPanel)
-		contentPanel.add(refreshStopsToButton)
-		contentPanel.add(stopsToPanel)
-		contentPanel.add(startButton)
 
 		setLocationRelativeTo(null)
 	}
 
-	private fun createStartButton(): JButton {
-		startButton.isEnabled = false
-		startButton.addActionListener {
-			startButton.isEnabled = false
+	private fun createCheckboxPanel(): JPanel {
+		return JPanel(GridLayout(1, 2)).apply {
+			add(shutdownCheck)
+			add(exitCheck)
+		}
+	}
 
-			stopsToNamesDropdown.isEnabled = false
-			startButton.isEnabled = false
+	private fun createInputPanel(label: String, field: JTextField): JPanel {
+		return JPanel(BorderLayout(5, 0)).apply {
+			add(JLabel(label).apply {
+				preferredSize = Dimension(150, preferredSize.height)
+			}, BorderLayout.WEST)
+			add(field, BorderLayout.CENTER)
+		}
+	}
 
-			shutdownCheckbox.isEnabled = false
-			exitCheckbox.isEnabled = false
+	private fun createComboPanel(label: String, combo: JComboBox<String>): JPanel {
+		return JPanel(BorderLayout(5, 0)).apply {
+			add(JLabel(label).apply {
+				preferredSize = Dimension(150, preferredSize.height)
+			}, BorderLayout.WEST)
+			combo.model = DefaultComboBoxModel(arrayOf("Не выбрано..."))
+			combo.isEnabled = false
+			add(combo, BorderLayout.CENTER)
+		}
+	}
 
-			val pause = 60
+	private fun updateCitiesFrom() {
+		val citiesFromNames = CitiesService.getCitiesFromNames(cache)
+		citiesFromCombo.model = DefaultComboBoxModel(citiesFromNames)
+		citiesFromCombo.isEnabled = true
+		citiesFromCombo.selectedIndex = 0
+		refreshCitiesFrom.isEnabled = false
+		refreshCitiesTo.isEnabled = true
+	}
 
-			thread {
+	private fun updateCitiesTo() {
+		val citiesToNames = CitiesService.getCitiesToNames(
+			cache, citiesFromCombo.getSelectedItemString()
+		)
+		citiesToCombo.model = DefaultComboBoxModel(citiesToNames)
+		citiesToCombo.isEnabled = true
+		citiesToCombo.selectedIndex = 0
+		refreshCitiesTo.isEnabled = false
+		citiesFromCombo.isEnabled = false
+		refreshTimes.isEnabled = true
+	}
+
+	private fun updateTimes() {
+		val times = TransfersService.getTimes(
+			cache,
+			phoneField.text,
+			dateField.text,
+			citiesFromCombo.getSelectedItemString(),
+			citiesToCombo.getSelectedItemString()
+		)
+		timesCombo.model = DefaultComboBoxModel(times)
+		timesCombo.isEnabled = true
+		timesCombo.selectedIndex = 0
+		refreshTimes.isEnabled = false
+		citiesToCombo.isEnabled = false
+		refreshStopsFrom.isEnabled = true
+	}
+
+	private fun updateStopsFrom() {
+		val stopsFromNames = TransfersService.getStopsFromNames(
+			cache, timesCombo.getSelectedItemString()
+		)
+		stopsFromCombo.model = DefaultComboBoxModel(stopsFromNames)
+		stopsFromCombo.isEnabled = true
+		stopsFromCombo.selectedIndex = 0
+		refreshStopsFrom.isEnabled = false
+		timesCombo.isEnabled = false
+		refreshStopsTo.isEnabled = true
+	}
+
+	private fun updateStopsTo() {
+		val stopsToNames = TransfersService.getStopsToNames(
+			cache, timesCombo.getSelectedItemString(), stopsFromCombo.getSelectedItemString()
+		)
+		stopsToCombo.model = DefaultComboBoxModel(stopsToNames)
+		stopsToCombo.isEnabled = true
+		stopsToCombo.selectedIndex = 0
+		refreshStopsTo.isEnabled = false
+		stopsFromCombo.isEnabled = false
+		start.isEnabled = true
+	}
+
+	private fun startOrderingProcess() {
+		stopsToCombo.isEnabled = false
+
+		thread {
+			try {
+				val pause = 60
 				loop@ while (true) {
 					val currentTime = LocalTime.now(ZoneId.systemDefault())
 					val time = "%02d:%02d".format(currentTime.hour, currentTime.minute)
@@ -130,17 +214,15 @@ class GUI : JFrame() {
 						phone = phoneField.text,
 						token = tokenField.text,
 						date = dateField.text,
-						cityFromName = citiesFromNamesDropdown.getSelectedItemString(),
-						cityToName = citiesToNamesDropdown.getSelectedItemString(),
-						time = timesDropdown.getSelectedItemString(),
-						stopFromName = stopsFromNamesDropdown.getSelectedItemString()
+						cityFromName = citiesFromCombo.getSelectedItemString(),
+						cityToName = citiesToCombo.getSelectedItemString(),
+						time = timesCombo.getSelectedItemString(),
+						stopFromName = stopsFromCombo.getSelectedItemString()
 					)
 
 					if (cache.transfersInfoPseudo) {
 						println("[$time] Расписание не открыто. Следующая попытка через $pause секунд.")
-
 						Thread.sleep(pause * 1000L)
-
 						continue@loop
 					}
 
@@ -149,300 +231,48 @@ class GUI : JFrame() {
 							cache = cache,
 							phone = phoneField.text,
 							token = tokenField.text,
-							time = timesDropdown.getSelectedItemString(),
-							stopFromName = stopsFromNamesDropdown.getSelectedItemString(),
-							stopToName = stopsToNamesDropdown.getSelectedItemString()
+							time = timesCombo.getSelectedItemString(),
+							stopFromName = stopsFromCombo.getSelectedItemString(),
+							stopToName = stopsToCombo.getSelectedItemString()
 						)
-
 						println("[$time] Попытка завершена. Следующая попытка через $pause секунд.")
-
 						Thread.sleep(pause * 1000L)
-
 						continue@loop
 					}
 
 					println("[$time] Билет заказан.")
-
-					if (!exitCheckbox.isSelected && !shutdownCheckbox.isSelected) {
-						JOptionPane.showMessageDialog(
-							this, "[$time] Билет заказан.", "Message", JOptionPane.INFORMATION_MESSAGE
-						)
+					if (!exitCheck.isSelected && !shutdownCheck.isSelected) {
+						EventQueue.invokeLater {
+							JOptionPane.showMessageDialog(
+								this, "[$time] Билет заказан.", "Message", JOptionPane.INFORMATION_MESSAGE
+							)
+						}
 					}
 					break@loop
 				}
-			}
 
-			if (exitCheckbox.isSelected) {
-				exitProcess(0)
-			}
-
-			if (shutdownCheckbox.isSelected) {
-				try {
-					val processBuilder = ProcessBuilder("rundll32.exe", "powrprof.dll,SetSuspendState", "0,1,0")
-					val process = processBuilder.start()
-					val exitCode = process.waitFor()
-					if (exitCode == 0) {
-						println("Command executed successfully.")
-					} else {
-						println("Command execution failed with exit code: $exitCode")
-					}
-				} catch (e: Exception) {
-					e.printStackTrace()
+				if (exitCheck.isSelected) {
+					exitProcess(0)
 				}
+				if (shutdownCheck.isSelected) {
+					hibernatePC()
+				}
+			} catch (e: Exception) {
+				e.printStackTrace()
 			}
 		}
-
-		return startButton
 	}
 
-	private fun createStopsToPanel(): JPanel {
-		val panel = JPanel()
-
-		panel.layout = GridLayout(0, 2, 5, 5)
-
-		val left = JLabel("Остановка прибытия:")
-
-		stopsToNamesDropdown.isEnabled = false
-		stopsToNamesDropdown.selectedItem = stopsToNames[0]
-
-		panel.add(left)
-		panel.add(stopsToNamesDropdown)
-
-		return panel
-	}
-
-	private fun createRefreshStopsToButton(): JButton {
-		refreshStopsToButton.isEnabled = false
-		refreshStopsToButton.addActionListener {
-			stopsToNames = TransfersService.getStopsToNames(
-				cache = cache,
-				time = timesDropdown.getSelectedItemString(),
-				stopFromName = stopsFromNamesDropdown.getSelectedItemString()
-			)
-
-			stopsToNamesDropdown.removeAllItems()
-			stopsToNames.forEach { stopsToNamesDropdown.addItem(it) }
-
-			stopsToNamesDropdown.selectedItem = stopsToNames[0]
-			stopsToNamesDropdown.isEnabled = true
-
-			refreshStopsToButton.isEnabled = false
-			startButton.isEnabled = true
-
-			stopsFromNamesDropdown.isEnabled = false
-			refreshStopsFromButton.isEnabled = false
+	private fun hibernatePC() {
+		try {
+			val process = ProcessBuilder("rundll32.exe", "powrprof.dll,SetSuspendState", "0,1,0").start()
+			if (process.waitFor() == 0) {
+				println("PC hibernated successfully")
+			}
+		} catch (e: Exception) {
+			e.printStackTrace()
 		}
-
-		return refreshStopsToButton
-	}
-
-	private fun createStopsFromPanel(): JPanel {
-		val panel = JPanel()
-
-		panel.layout = GridLayout(0, 2, 5, 5)
-
-		val left = JLabel("Остановка отправки:")
-
-		stopsFromNamesDropdown.isEnabled = false
-		stopsFromNamesDropdown.selectedItem = stopsFromNames[0]
-
-		panel.add(left)
-		panel.add(stopsFromNamesDropdown)
-
-		return panel
-	}
-
-	private fun createRefreshStopsFromButton(): JButton {
-		refreshStopsFromButton.isEnabled = false
-		refreshStopsFromButton.addActionListener {
-			stopsFromNames = TransfersService.getStopsFromNames(
-				cache = cache, time = timesDropdown.getSelectedItemString()
-			)
-
-			stopsFromNamesDropdown.removeAllItems()
-			stopsFromNames.forEach { stopsFromNamesDropdown.addItem(it) }
-
-			stopsFromNamesDropdown.selectedItem = stopsFromNames[0]
-			stopsFromNamesDropdown.isEnabled = true
-
-			refreshStopsFromButton.isEnabled = false
-			refreshStopsToButton.isEnabled = true
-
-			timesDropdown.isEnabled = false
-			refreshTimesFromButton.isEnabled = false
-		}
-
-		return refreshStopsFromButton
-	}
-
-	private fun createTimePanel(): JPanel {
-		val panel = JPanel()
-
-		panel.layout = GridLayout(0, 2, 5, 5)
-
-		val left = JLabel("Время отправки:")
-
-		timesDropdown.isEnabled = false
-		timesDropdown.selectedItem = times[0]
-
-		panel.add(left)
-		panel.add(timesDropdown)
-
-		return panel
-	}
-
-	private fun createRefreshTimesFromButton(): JButton {
-		refreshTimesFromButton.isEnabled = false
-		refreshTimesFromButton.addActionListener {
-			times = TransfersService.getTimes(
-				cache = cache,
-				phone = phoneField.text,
-				date = dateField.text,
-				cityFromName = citiesFromNamesDropdown.getSelectedItemString(),
-				cityToName = citiesToNamesDropdown.getSelectedItemString()
-			)
-
-			timesDropdown.removeAllItems()
-			times.forEach { timesDropdown.addItem(it) }
-
-			timesDropdown.selectedItem = times[0]
-			timesDropdown.isEnabled = true
-
-			refreshTimesFromButton.isEnabled = false
-			refreshStopsFromButton.isEnabled = true
-
-			citiesToNamesDropdown.isEnabled = false
-		}
-
-		return refreshTimesFromButton
-	}
-
-	private fun createCitiesToPanel(): JPanel {
-		val panel = JPanel()
-
-		panel.layout = GridLayout(0, 2, 5, 5)
-
-		val left = JLabel("Город прибытия:")
-
-		citiesToNamesDropdown.isEnabled = false
-		citiesToNamesDropdown.selectedItem = citiesToNames[0]
-
-		panel.add(left)
-		panel.add(citiesToNamesDropdown)
-
-		return panel
-	}
-
-	private fun createRefreshCitiesToButton(): JButton {
-		refreshCitiesToButton.isEnabled = false
-		refreshCitiesToButton.addActionListener {
-			citiesToNames = CitiesService.getCitiesToNames(
-				cache = cache, cityFromName = citiesFromNamesDropdown.getSelectedItemString()
-			)
-
-			citiesToNamesDropdown.removeAllItems()
-			citiesToNames.forEach { citiesToNamesDropdown.addItem(it) }
-
-			citiesToNamesDropdown.selectedItem = citiesToNames[0]
-			citiesToNamesDropdown.isEnabled = true
-
-			refreshCitiesToButton.isEnabled = false
-			refreshTimesFromButton.isEnabled = true
-
-			citiesFromNamesDropdown.isEnabled = false
-		}
-
-		return refreshCitiesToButton
-	}
-
-	private fun createCitiesFromPanel(): JPanel {
-		val panel = JPanel()
-
-		panel.layout = GridLayout(0, 2, 5, 5)
-
-		val left = JLabel("Город отправки:")
-
-		citiesFromNamesDropdown.isEnabled = false
-		citiesFromNamesDropdown.selectedItem = citiesFromNames[0]
-
-		panel.add(left)
-		panel.add(citiesFromNamesDropdown)
-
-		return panel
-	}
-
-	private fun createRefreshCitiesFromButton(): JButton {
-		refreshCitiesFromButton.addActionListener {
-			citiesFromNames = CitiesService.getCitiesFromNames(cache)
-
-			citiesFromNamesDropdown.removeAllItems()
-			citiesFromNames.forEach { citiesFromNamesDropdown.addItem(it) }
-
-			citiesFromNamesDropdown.selectedItem = citiesFromNames[0]
-			citiesFromNamesDropdown.isEnabled = true
-
-			refreshCitiesFromButton.isEnabled = false
-			refreshCitiesToButton.isEnabled = true
-
-			phoneField.isEnabled = false
-			tokenField.isEnabled = false
-			dateField.isEnabled = false
-		}
-
-		return refreshCitiesFromButton
-	}
-
-	private fun createDatePanel(): JPanel {
-		val panel = JPanel()
-		panel.layout = GridLayout(0, 2, 5, 5)
-
-		val left = JLabel("Дата отправки:")
-
-		dateField.text = LocalDate.now().format(formatter)
-
-		panel.add(left)
-		panel.add(dateField)
-
-		return panel
-	}
-
-	private fun createTokenPanel(): JPanel {
-		val panel = JPanel()
-
-		panel.layout = GridLayout(0, 2, 5, 5)
-
-		val left = JLabel("Токен:")
-
-		panel.add(left)
-		panel.add(tokenField)
-
-		return panel
-	}
-
-	private fun createPhonePanel(): JPanel {
-		val panel = JPanel()
-
-		panel.layout = GridLayout(0, 2, 5, 5)
-
-		val left = JLabel("Номер телефона:")
-
-		panel.add(left)
-		panel.add(phoneField)
-
-		return panel
-	}
-
-	private fun createCheckboxPanel(): JPanel {
-		val panel = JPanel()
-
-		panel.layout = GridLayout(0, 2, 5, 5)
-
-		shutdownCheckbox.isSelected = false
-		exitCheckbox.isSelected = false
-
-		panel.add(shutdownCheckbox)
-		panel.add(exitCheckbox)
-
-		return panel
 	}
 }
+
+private fun JComboBox<String>.getSelectedItemString(): String = selectedItem?.toString() ?: ""
