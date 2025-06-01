@@ -138,7 +138,9 @@ class MinibusOrderer : JFrame() {
 			}, BorderLayout.EAST)
 			button.isEnabled = false
 			combo.isEnabled = false
-			button.addActionListener { butonListener.invoke() }
+			button.addActionListener {
+				butonListener.invoke()
+			}
 		}
 	}
 
