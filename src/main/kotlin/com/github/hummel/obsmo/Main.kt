@@ -11,8 +11,8 @@ import java.awt.Dimension
 import java.awt.EventQueue
 import java.awt.GridLayout
 import java.time.LocalDate
-import java.time.LocalTime
 import java.time.ZoneId
+import java.time.ZonedDateTime
 import javax.swing.*
 import javax.swing.border.EmptyBorder
 import kotlin.concurrent.thread
@@ -38,11 +38,11 @@ class MinibusOrderer : JFrame() {
 	private val tokenField: JTextField = JTextField()
 	private val dateField: JTextField = JTextField()
 
-	private val citiesFromCombo: JComboBox<String> = JComboBox<String>()
-	private val citiesToCombo: JComboBox<String> = JComboBox<String>()
-	private val stopsFromCombo: JComboBox<String> = JComboBox<String>()
-	private val stopsToCombo: JComboBox<String> = JComboBox<String>()
-	private val timesCombo: JComboBox<String> = JComboBox<String>()
+	private val citiesFromCombo: JComboBox<String> = JComboBox()
+	private val citiesToCombo: JComboBox<String> = JComboBox()
+	private val stopsFromCombo: JComboBox<String> = JComboBox()
+	private val stopsToCombo: JComboBox<String> = JComboBox()
+	private val timesCombo: JComboBox<String> = JComboBox()
 
 	private val refreshCitiesFrom: JButton = JButton("Обновить")
 	private val refreshCitiesTo: JButton = JButton("Обновить")
@@ -213,8 +213,9 @@ class MinibusOrderer : JFrame() {
 			try {
 				val pause = 60
 				loop@ while (true) {
-					val currentTime = LocalTime.now(ZoneId.systemDefault())
-					val time = "%02d:%02d".format(currentTime.hour, currentTime.minute)
+					val mskZone = ZoneId.of("Europe/Moscow")
+					val today = ZonedDateTime.now(mskZone)
+					val time = "%02d:%02d".format(today.hour, today.minute)
 
 					val notOrdered = ClientsService.isTicketNotOrdered(
 						cache = cache,
@@ -279,5 +280,3 @@ class MinibusOrderer : JFrame() {
 		}
 	}
 }
-
-private fun JComboBox<String>.getSelectedItemString(): String = selectedItem?.toString() ?: ""

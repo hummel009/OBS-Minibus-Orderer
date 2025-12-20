@@ -8,4 +8,4 @@ val formatter: DateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd")
 
 val gson: Gson = Gson()
 
-fun <E> JComboBox<E>.getSelectedItemString(): String = selectedItem!!.toString()
+fun JComboBox<String>.getSelectedItemString(): String = selectedItem?.toString() ?: ""
